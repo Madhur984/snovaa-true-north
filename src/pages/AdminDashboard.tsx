@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Users, Calendar, MapPin, Building, TrendingUp, 
-  BarChart3, Shield, Database, Activity 
+  Users, Calendar, Building, 
+  Shield, Database, Activity, BarChart3, UserCog
 } from "lucide-react";
+import { UserManagement } from "@/components/admin/UserManagement";
+import { AnalyticsCharts } from "@/components/admin/AnalyticsCharts";
 
 interface SystemStats {
   totalUsers: number;
@@ -262,12 +264,28 @@ const AdminDashboard = () => {
         </div>
 
         {/* Tabs Content */}
-        <Tabs defaultValue="events" className="space-y-6">
-          <TabsList>
+        <Tabs defaultValue="analytics" className="space-y-6">
+          <TabsList className="flex-wrap h-auto gap-1">
+            <TabsTrigger value="analytics" className="gap-1.5">
+              <BarChart3 className="w-4 h-4" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="users" className="gap-1.5">
+              <UserCog className="w-4 h-4" />
+              Users
+            </TabsTrigger>
             <TabsTrigger value="events">Recent Events</TabsTrigger>
             <TabsTrigger value="clubs">Top Clubs</TabsTrigger>
             <TabsTrigger value="health">System Health</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="analytics">
+            <AnalyticsCharts />
+          </TabsContent>
+
+          <TabsContent value="users">
+            <UserManagement />
+          </TabsContent>
 
           <TabsContent value="events">
             <Card>
