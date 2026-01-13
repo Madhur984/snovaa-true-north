@@ -1,20 +1,23 @@
+import { Link } from "react-router-dom";
+import { Layout } from "@/components/layout/Layout";
 import { PhaseCard } from "@/components/PhaseCard";
 import { PrincipleBlock } from "@/components/PrincipleBlock";
 import { ExclusionItem } from "@/components/ExclusionItem";
-import { Shield, Database, Eye, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Shield, Database, Eye, Lock, ArrowRight } from "lucide-react";
 
 const phases = [
-  { number: 0, title: "Foundation", description: "Lock core invariants and domain models. Define what we will never build.", status: "current" as const },
-  { number: 1, title: "Immutable Core", description: "Build user identity services and append-only participation ledgers.", status: "future" as const },
-  { number: 2, title: "Event Flow", description: "Manual event creation and attendance confirmation. No galleries, no AI.", status: "future" as const },
-  { number: 3, title: "Presentation Layer", description: "Calm web app experience. Read-first, no feeds or notifications.", status: "future" as const },
-  { number: 4, title: "Event Memory", description: "Enable media uploads with organizer approval. No engagement metrics.", status: "future" as const },
-  { number: 5, title: "Module System", description: "Predefined modules with controlled flexibility. Read-only from ledger.", status: "future" as const },
-  { number: 6, title: "AI Orchestration", description: "AI suggests configurations. Never writes core records or changes participation.", status: "future" as const },
-  { number: 7, title: "Sponsor Readiness", description: "Read-only sponsor views. Strict exclusion of social metrics.", status: "future" as const },
-  { number: 8, title: "Participation Map", description: "City-level heatmaps and participation volume. No live tracking.", status: "future" as const },
-  { number: 9, title: "Polish & Harden", description: "Performance and data integrity. Remove anything noisy or addictive.", status: "future" as const },
-  { number: 10, title: "Closed Pilots", description: "Real-world validation. No social features.", status: "future" as const },
+  { number: 0, title: "Foundation", description: "Lock core invariants and domain models. Define what we will never build.", status: "locked" as const },
+  { number: 1, title: "Immutable Core", description: "Build user identity services and append-only participation ledgers.", status: "locked" as const },
+  { number: 2, title: "Event Flow", description: "Manual event creation and attendance confirmation. No galleries, no AI.", status: "locked" as const },
+  { number: 3, title: "Presentation Layer", description: "Calm web app experience. Read-first, no feeds or notifications.", status: "locked" as const },
+  { number: 4, title: "Event Memory", description: "Enable media uploads with organizer approval. No engagement metrics.", status: "locked" as const },
+  { number: 5, title: "Module System", description: "Predefined modules with controlled flexibility. Read-only from ledger.", status: "locked" as const },
+  { number: 6, title: "AI Orchestration", description: "AI suggests configurations. Never writes core records or changes participation.", status: "locked" as const },
+  { number: 7, title: "Sponsor Readiness", description: "Read-only sponsor views. Strict exclusion of social metrics.", status: "locked" as const },
+  { number: 8, title: "Participation Map", description: "City-level heatmaps and participation volume. No live tracking.", status: "locked" as const },
+  { number: 9, title: "Polish & Harden", description: "Performance and data integrity. Remove anything noisy or addictive.", status: "locked" as const },
+  { number: 10, title: "Closed Pilots", description: "Real-world validation. No social features.", status: "current" as const },
 ];
 
 const exclusions = [
@@ -30,22 +33,7 @@ const exclusions = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="container max-w-5xl py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-serif font-semibold text-sm">S</span>
-              </div>
-              <span className="font-serif text-xl font-medium text-display">SNOVAA</span>
-            </div>
-            <span className="text-sm text-subtle">Phase 0 — Foundation</span>
-          </div>
-        </div>
-      </header>
-
+    <Layout showHeader={true}>
       {/* Hero */}
       <section className="py-20 md:py-28">
         <div className="container max-w-5xl">
@@ -57,6 +45,17 @@ const Index = () => {
               A calm, immutable record of where people gather. No feeds. No likes. 
               No notifications. Just verified participation, preserved with integrity.
             </p>
+            <div className="pt-4 flex flex-wrap gap-4">
+              <Button asChild size="lg">
+                <Link to="/signup">
+                  Get Started
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link to="/events">Browse Events</Link>
+              </Button>
+            </div>
             <div className="pt-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-soft text-primary text-sm font-medium">
                 <Lock className="w-4 h-4" />
@@ -154,23 +153,26 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 border-t border-border">
-        <div className="container max-w-5xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-serif font-semibold text-xs">S</span>
-              </div>
-              <span className="font-serif text-sm text-display">SNOVAA</span>
-            </div>
-            <p className="text-sm text-subtle text-center md:text-right">
-              Boring. Calm. Correct. — A truth-first participation system.
-            </p>
+      {/* CTA Section */}
+      <section className="py-20 border-t border-border bg-accent-soft">
+        <div className="container max-w-5xl text-center">
+          <h2 className="font-serif text-2xl md:text-3xl font-medium text-display mb-4">
+            Ready to participate?
+          </h2>
+          <p className="text-body text-lg max-w-xl mx-auto mb-8">
+            Join the truth-first event network. Your participation matters—and it will be recorded with integrity.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button asChild size="lg">
+              <Link to="/signup">Create Account</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/philosophy">Learn More</Link>
+            </Button>
           </div>
         </div>
-      </footer>
-    </div>
+      </section>
+    </Layout>
   );
 };
 
