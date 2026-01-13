@@ -88,13 +88,8 @@ const CreateEvent = () => {
   useEffect(() => {
     if (authLoading) return;
 
-    // Don’t block while the profile is still loading.
+    // Don't block while the profile is still loading.
     if (!profile || profile.role !== "organizer") {
-      toast({
-        title: "Access denied",
-        description: "You must be an organizer to create events.",
-        variant: "destructive",
-      });
       navigate("/dashboard", { replace: true });
       return;
     }
@@ -115,7 +110,7 @@ const CreateEvent = () => {
         );
       }
     })();
-  }, [authLoading, profile?.id, profile?.role, navigate, toast]);
+  }, [authLoading, profile, navigate]);
 
   const handleBlueprintChange = (blueprintId: string) => {
     setSelectedBlueprint(blueprintId);
