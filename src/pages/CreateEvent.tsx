@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/lib/auth";
@@ -23,7 +23,20 @@ import {
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
+interface ModuleSuggestion {
+  module_id: string;
+  recommended: boolean;
+  reason: string;
+}
+
+interface AISuggestions {
+  suggestions: ModuleSuggestion[];
+  event_type_detected: string;
+  overall_recommendation: string;
+}
 
 interface City {
   id: string;
@@ -47,6 +60,8 @@ const CreateEvent = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [aiSuggestions, setAiSuggestions] = useState<AISuggestions | null>(null);
+  const [suggestingModules, setSuggestingModules] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -140,6 +155,54 @@ const CreateEvent = () => {
         ? prev.filter((id) => id !== moduleId)
         : [...prev, moduleId]
     );
+  };
+
+  const suggestModulesWithAI = useCallback(async () => {
+    if (!formData.title && !formData.description) {
+      toast({
+        title: "Need more info",
+        description: "Add a title or description first so AI can suggest modules.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSuggestingModules(true);
+    setAiSuggestions(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("suggest-modules", {
+        body: { title: formData.title, description: formData.description },
+      });
+
+      if (error) throw error;
+
+      setAiSuggestions(data);
+
+      // Auto-select recommended modules
+      const recommendedModules = data.suggestions
+        .filter((s: ModuleSuggestion) => s.recommended)
+        .map((s: ModuleSuggestion) => s.module_id);
+      setSelectedModules(recommendedModules);
+
+      toast({
+        title: "AI Suggestions Ready",
+        description: `Detected: ${data.event_type_detected}. ${recommendedModules.length} modules recommended.`,
+      });
+    } catch (error) {
+      console.error("AI suggestion error:", error);
+      toast({
+        title: "Suggestion failed",
+        description: "Could not get AI suggestions. You can still select modules manually.",
+        variant: "destructive",
+      });
+    } finally {
+      setSuggestingModules(false);
+    }
+  }, [formData.title, formData.description, toast]);
+
+  const getSuggestionForModule = (moduleId: string): ModuleSuggestion | undefined => {
+    return aiSuggestions?.suggestions.find((s) => s.module_id === moduleId);
   };
 
   return (
@@ -276,28 +339,80 @@ const CreateEvent = () => {
 
           {/* Modules */}
           <Card>
-            <CardHeader>
-              <CardTitle className="font-serif">Event Modules</CardTitle>
-              <CardDescription>Select which modules to enable for this event</CardDescription>
+            <CardHeader className="flex flex-row items-start justify-between space-y-0">
+              <div>
+                <CardTitle className="font-serif">Event Modules</CardTitle>
+                <CardDescription>Select which modules to enable for this event</CardDescription>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={suggestModulesWithAI}
+                disabled={suggestingModules}
+                className="shrink-0"
+              >
+                {suggestingModules ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                {suggestingModules ? "Analyzing..." : "AI Suggest"}
+              </Button>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {moduleTypes.map((module) => (
-                  <div
-                    key={module.id}
-                    className="flex items-start space-x-3 p-4 rounded-lg border border-border hover:bg-muted/50 cursor-pointer"
-                    onClick={() => toggleModule(module.id)}
-                  >
-                    <Checkbox
-                      checked={selectedModules.includes(module.id)}
-                      onCheckedChange={() => toggleModule(module.id)}
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{module.label}</p>
-                      <p className="text-sm text-muted-foreground">{module.description}</p>
-                    </div>
+            <CardContent className="space-y-4">
+              {aiSuggestions && (
+                <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium">AI Analysis</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {aiSuggestions.event_type_detected}
+                    </Badge>
                   </div>
-                ))}
+                  <p className="text-sm text-muted-foreground">
+                    {aiSuggestions.overall_recommendation}
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                {moduleTypes.map((module) => {
+                  const suggestion = getSuggestionForModule(module.id);
+                  return (
+                    <div
+                      key={module.id}
+                      className={`flex items-start space-x-3 p-4 rounded-lg border cursor-pointer transition-colors ${
+                        suggestion?.recommended
+                          ? "border-primary/50 bg-primary/5 hover:bg-primary/10"
+                          : "border-border hover:bg-muted/50"
+                      }`}
+                      onClick={() => toggleModule(module.id)}
+                    >
+                      <Checkbox
+                        checked={selectedModules.includes(module.id)}
+                        onCheckedChange={() => toggleModule(module.id)}
+                      />
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm">{module.label}</p>
+                          {suggestion?.recommended && (
+                            <Badge variant="default" className="text-xs">
+                              Recommended
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{module.description}</p>
+                        {suggestion?.reason && (
+                          <p className="text-xs text-primary/80 mt-1">
+                            <Sparkles className="w-3 h-3 inline mr-1" />
+                            {suggestion.reason}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
