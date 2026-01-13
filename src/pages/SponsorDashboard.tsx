@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, Calendar, MapPin, TrendingUp, BarChart3, Shield } from "lucide-react";
 import { format } from "date-fns";
+import sponsorHero from "@/assets/sponsor-hero.jpg";
 
 interface EventAnalytics {
   event_id: string;
@@ -140,6 +141,16 @@ const SponsorDashboard = () => {
 
   return (
     <Layout>
+      {/* Hero Background */}
+      <div className="fixed inset-0 -z-10">
+        <img 
+          src={sponsorHero} 
+          alt="" 
+          className="w-full h-full object-cover opacity-25"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/85 to-background" />
+      </div>
+
       <div className="container max-w-6xl py-12">
         {/* Header */}
         <div className="mb-8">

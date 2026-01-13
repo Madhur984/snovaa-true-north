@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Plus, Users, MapPin, Clock } from "lucide-react";
 import { format } from "date-fns";
-
+import dashboardHero from "@/assets/dashboard-hero.jpg";
 interface Event {
   id: string;
   title: string;
@@ -84,6 +84,16 @@ const Dashboard = () => {
 
   return (
     <Layout>
+      {/* Hero Background */}
+      <div className="fixed inset-0 -z-10">
+        <img 
+          src={dashboardHero} 
+          alt="" 
+          className="w-full h-full object-cover opacity-15"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/90 to-background" />
+      </div>
+
       <div className="container max-w-6xl py-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
