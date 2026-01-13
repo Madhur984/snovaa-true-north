@@ -7,8 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus } from "lucide-react";
@@ -29,7 +41,7 @@ const moduleTypes = [
 
 const CreateEvent = () => {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
   const [cities, setCities] = useState<City[]>([]);
@@ -48,22 +60,25 @@ const CreateEvent = () => {
   });
 
   useEffect(() => {
-    if (profile?.role !== "organizer") {
+    if (authLoading) return;
+
+    // Don’t block while the profile is still loading.
+    if (!profile || profile.role !== "organizer") {
       toast({
         title: "Access denied",
         description: "You must be an organizer to create events.",
         variant: "destructive",
       });
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
+      return;
     }
 
-    fetchCities();
-  }, [profile]);
+    (async () => {
+      const { data } = await supabase.from("cities").select("*").order("name");
+      if (data) setCities(data);
+    })();
+  }, [authLoading, profile?.id, profile?.role, navigate, toast]);
 
-  const fetchCities = async () => {
-    const { data } = await supabase.from("cities").select("*").order("name");
-    if (data) setCities(data);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
