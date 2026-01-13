@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, TrendingUp, Users } from "lucide-react";
+import { MapBackground } from "@/components/3d/MapBackground";
+import { GlassCard } from "@/components/ui/GlassCard";
 
 interface CityStats {
   id: string;
@@ -103,9 +105,10 @@ const Map = () => {
 
   return (
     <Layout>
-      <div className="container max-w-6xl py-12">
+      <MapBackground />
+      <div className="container max-w-6xl py-12 relative z-10">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in">
           <h1 className="font-serif text-4xl font-medium text-display mb-3">
             Participation Density Map
           </h1>
@@ -117,149 +120,130 @@ const Map = () => {
 
         {/* Global Stats */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Total Cities</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-primary" />
-                <span className="text-3xl font-serif font-medium text-display">
-                  {cityStats.length}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Published Events</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                <span className="text-3xl font-serif font-medium text-display">
-                  {totalEvents}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Total Attendance Records</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-primary" />
-                <span className="text-3xl font-serif font-medium text-display">
-                  {totalParticipation}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+          <GlassCard className="p-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+            <p className="text-sm text-muted-foreground mb-2">Total Cities</p>
+            <div className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-primary" />
+              <span className="text-3xl font-serif font-medium text-display">
+                {cityStats.length}
+              </span>
+            </div>
+          </GlassCard>
+          <GlassCard className="p-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <p className="text-sm text-muted-foreground mb-2">Published Events</p>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              <span className="text-3xl font-serif font-medium text-display">
+                {totalEvents}
+              </span>
+            </div>
+          </GlassCard>
+          <GlassCard className="p-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <p className="text-sm text-muted-foreground mb-2">Total Attendance Records</p>
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
+              <span className="text-3xl font-serif font-medium text-display">
+                {totalParticipation}
+              </span>
+            </div>
+          </GlassCard>
         </div>
 
         {/* City Heatmap Grid */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-serif">City Participation Density</CardTitle>
-            <CardDescription>
-              Visual representation of event activity by city. Darker colors indicate higher volume.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                  <div key={i} className="h-32 bg-muted animate-pulse rounded-lg"></div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {cityStats.map((city) => (
-                  <div
-                    key={city.id}
-                    className={`p-4 rounded-lg transition-all ${getIntensity(city.event_count, maxEvents)}`}
-                  >
-                    <div className="flex flex-col h-full justify-between">
-                      <div>
-                        <h3 className="font-medium text-primary-foreground text-sm mb-1">
-                          {city.name}
-                        </h3>
-                        <p className="text-xs text-primary-foreground/70">{city.country}</p>
-                      </div>
-                      <div className="mt-4">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary" className="text-xs">
-                            {city.event_count} events
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Legend */}
-            <div className="mt-8 pt-6 border-t border-border">
-              <p className="text-sm text-muted-foreground mb-3">Density Legend</p>
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-muted"></div>
-                  <span className="text-xs text-muted-foreground">No events</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-primary/20"></div>
-                  <span className="text-xs text-muted-foreground">Low</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-primary/40"></div>
-                  <span className="text-xs text-muted-foreground">Medium</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-primary/70"></div>
-                  <span className="text-xs text-muted-foreground">High</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-primary"></div>
-                  <span className="text-xs text-muted-foreground">Very High</span>
-                </div>
-              </div>
+        <GlassCard className="p-6 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+          <h2 className="font-serif text-xl font-medium text-display mb-2">City Participation Density</h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            Visual representation of event activity by city. Darker colors indicate higher volume.
+          </p>
+          
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div key={i} className="h-32 bg-muted/50 animate-pulse rounded-xl"></div>
+              ))}
             </div>
-          </CardContent>
-        </Card>
-
-        {/* City List */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="font-serif">City Rankings</CardTitle>
-            <CardDescription>Ordered by number of events</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {cityStats.map((city, index) => (
                 <div
                   key={city.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
+                  className={`p-4 rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer ${getIntensity(city.event_count, maxEvents)}`}
+                  style={{ animationDelay: `${0.5 + index * 0.05}s` }}
                 >
-                  <div className="flex items-center gap-4">
-                    <span className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground">
-                      {index + 1}
-                    </span>
+                  <div className="flex flex-col h-full justify-between min-h-[100px]">
                     <div>
-                      <p className="font-medium text-display">{city.name}</p>
-                      <p className="text-sm text-muted-foreground">{city.country}</p>
+                      <h3 className="font-medium text-primary-foreground text-sm mb-1">
+                        {city.name}
+                      </h3>
+                      <p className="text-xs text-primary-foreground/70">{city.country}</p>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-display">{city.event_count}</p>
-                    <p className="text-sm text-muted-foreground">events</p>
+                    <div className="mt-4">
+                      <Badge variant="secondary" className="text-xs bg-background/20 backdrop-blur-sm">
+                        {city.event_count} events
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          )}
+
+          {/* Legend */}
+          <div className="mt-8 pt-6 border-t border-border/50">
+            <p className="text-sm text-muted-foreground mb-3">Density Legend</p>
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-muted"></div>
+                <span className="text-xs text-muted-foreground">No events</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-primary/20"></div>
+                <span className="text-xs text-muted-foreground">Low</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-primary/40"></div>
+                <span className="text-xs text-muted-foreground">Medium</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-primary/70"></div>
+                <span className="text-xs text-muted-foreground">High</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-primary"></div>
+                <span className="text-xs text-muted-foreground">Very High</span>
+              </div>
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* City List */}
+        <GlassCard className="p-6 mt-8 animate-fade-in" style={{ animationDelay: "0.5s" }}>
+          <h2 className="font-serif text-xl font-medium text-display mb-2">City Rankings</h2>
+          <p className="text-sm text-muted-foreground mb-6">Ordered by number of events</p>
+          
+          <div className="space-y-2">
+            {cityStats.map((city, index) => (
+              <div
+                key={city.id}
+                className="flex items-center justify-between p-4 rounded-xl bg-muted/20 backdrop-blur-sm border border-border/30 transition-all duration-300 hover:bg-muted/40 hover:border-primary/20"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-sm font-medium text-primary">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="font-medium text-display">{city.name}</p>
+                    <p className="text-sm text-muted-foreground">{city.country}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-serif font-medium text-display">{city.event_count}</p>
+                  <p className="text-xs text-muted-foreground">events</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
       </div>
     </Layout>
   );
