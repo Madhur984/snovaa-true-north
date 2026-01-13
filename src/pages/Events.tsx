@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Calendar, MapPin, Clock, Search, Users, ArrowRight, Sparkles } from "lucide-react";
 import { format } from "date-fns";
+import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
 
 const FloatingShapes = lazy(() => import("@/components/3d/FloatingShapes").then(m => ({ default: m.FloatingShapes })));
 
@@ -59,9 +60,11 @@ const Events = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        <Suspense fallback={null}>
-          <FloatingShapes />
-        </Suspense>
+        <WebGLFallback fallback={<GradientFallback className="opacity-50" />}>
+          <Suspense fallback={null}>
+            <FloatingShapes />
+          </Suspense>
+        </WebGLFallback>
         
         <div className="container max-w-6xl relative z-10">
           <div className="max-w-3xl">

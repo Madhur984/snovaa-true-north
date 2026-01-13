@@ -5,6 +5,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { Button } from "@/components/ui/button";
 import { Shield, Database, Eye, Lock, ArrowRight, Calendar, Users, MapPin, Sparkles } from "lucide-react";
+import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
 
 const HeroScene = lazy(() => import("@/components/3d/HeroScene").then(m => ({ default: m.HeroScene })));
 const FloatingShapes = lazy(() => import("@/components/3d/FloatingShapes").then(m => ({ default: m.FloatingShapes })));
@@ -47,9 +48,11 @@ const Index = () => {
     <Layout showHeader={true}>
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-        <Suspense fallback={<div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />}>
-          <HeroScene />
-        </Suspense>
+        <WebGLFallback fallback={<GradientFallback />}>
+          <Suspense fallback={<GradientFallback />}>
+            <HeroScene />
+          </Suspense>
+        </WebGLFallback>
         
         <div className="container max-w-6xl relative z-10">
           <div className="max-w-3xl space-y-8">
@@ -105,9 +108,11 @@ const Index = () => {
 
       {/* Features Section */}
       <section className="relative py-32 overflow-hidden">
-        <Suspense fallback={null}>
-          <FloatingShapes />
-        </Suspense>
+        <WebGLFallback fallback={<GradientFallback className="opacity-50" />}>
+          <Suspense fallback={null}>
+            <FloatingShapes />
+          </Suspense>
+        </WebGLFallback>
         
         <div className="container max-w-6xl relative z-10">
           <div className="text-center mb-16">
