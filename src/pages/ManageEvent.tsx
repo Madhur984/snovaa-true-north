@@ -242,6 +242,16 @@ const ManageEvent = () => {
         title: "Attendance confirmed",
         description: "Participation recorded in the ledger.",
       });
+
+      // Send attendance confirmation email (fire and forget)
+      supabase.functions.invoke("send-notification", {
+        body: {
+          type: "attendance_confirmed",
+          eventId: id,
+          participantId,
+        },
+      }).catch((err) => console.error("Failed to send notification:", err));
+
       fetchParticipants();
     }
   };

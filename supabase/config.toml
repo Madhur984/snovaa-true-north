@@ -2,3 +2,6 @@ project_id = "eufnguvzardglcvntrgx"
 
 [functions.suggest-modules]
 verify_jwt = false
+
+[functions.send-notification]
+verify_jwt = false

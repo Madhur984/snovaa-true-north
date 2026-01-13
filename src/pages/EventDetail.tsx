@@ -133,6 +133,15 @@ const EventDetail = () => {
       });
       setParticipationStatus("registered");
       setParticipantCount(prev => ({ ...prev, registered: prev.registered + 1 }));
+
+      // Send confirmation email (fire and forget)
+      supabase.functions.invoke("send-notification", {
+        body: {
+          type: "registration_confirmation",
+          eventId: id,
+          participantId: profile.id,
+        },
+      }).catch((err) => console.error("Failed to send notification:", err));
     }
 
     setActionLoading(false);
