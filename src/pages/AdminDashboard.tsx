@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { AnalyticsCharts } from "@/components/admin/AnalyticsCharts";
+import adminHero from "@/assets/admin-hero.jpg";
 
 interface SystemStats {
   totalUsers: number;
@@ -155,6 +156,16 @@ const AdminDashboard = () => {
 
   return (
     <Layout>
+      {/* Hero Background */}
+      <div className="fixed inset-0 -z-10">
+        <img 
+          src={adminHero} 
+          alt="" 
+          className="w-full h-full object-cover opacity-20"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
+      </div>
+
       <div className="container max-w-6xl py-12">
         {/* Header */}
         <div className="mb-8">
