@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/lib/auth";
@@ -85,14 +85,27 @@ const CreateEvent = () => {
     max_participants: "",
   });
 
-  useEffect(() => {
-    if (authLoading) return;
+  const hasCheckedAccess = useRef(false);
+  const hasFetchedData = useRef(false);
 
-    // Don't block while the profile is still loading.
-    if (!profile || profile.role !== "organizer") {
+  useEffect(() => {
+    if (authLoading || hasCheckedAccess.current) return;
+
+    // Only check access once profile is loaded
+    if (!profile) return;
+    
+    hasCheckedAccess.current = true;
+
+    if (profile.role !== "organizer") {
       navigate("/dashboard", { replace: true });
       return;
     }
+  }, [authLoading, profile, navigate]);
+
+  useEffect(() => {
+    if (authLoading || !profile || profile.role !== "organizer" || hasFetchedData.current) return;
+    
+    hasFetchedData.current = true;
 
     (async () => {
       const [citiesRes, blueprintsRes] = await Promise.all([
@@ -110,7 +123,7 @@ const CreateEvent = () => {
         );
       }
     })();
-  }, [authLoading, profile, navigate]);
+  }, [authLoading, profile]);
 
   const handleBlueprintChange = (blueprintId: string) => {
     setSelectedBlueprint(blueprintId);
