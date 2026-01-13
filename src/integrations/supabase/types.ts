@@ -685,11 +685,25 @@ export type Database = {
         Args: { p_event_id: string; p_participant_id: string }
         Returns: string
       }
+      get_user_participation_stats: {
+        Args: { p_user_id?: string }
+        Returns: {
+          attendance_rate: number
+          total_attended: number
+          total_registered: number
+          unique_cities: number
+          unique_clubs: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      transition_event_status: {
+        Args: { p_event_id: string; p_new_status: string; p_reason?: string }
         Returns: boolean
       }
     }
