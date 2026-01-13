@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, TrendingUp, Users } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
+import mapHero from "@/assets/map-hero.jpg";
 
 const MapBackground = lazy(() => import("@/components/3d/MapBackground").then(m => ({ default: m.MapBackground })));
 
@@ -106,6 +107,16 @@ const Map = () => {
 
   return (
     <Layout>
+      {/* Background Image */}
+      <div className="fixed inset-0 -z-30">
+        <img 
+          src={mapHero} 
+          alt="" 
+          className="w-full h-full object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background" />
+      </div>
+      
       <WebGLFallback fallback={<GradientFallback />}>
         <Suspense fallback={<GradientFallback />}>
           <MapBackground />

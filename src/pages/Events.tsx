@@ -9,6 +9,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Calendar, MapPin, Clock, Search, Users, ArrowRight, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
+import eventsHero from "@/assets/events-hero.jpg";
 
 const FloatingShapes = lazy(() => import("@/components/3d/FloatingShapes").then(m => ({ default: m.FloatingShapes })));
 
@@ -60,6 +61,16 @@ const Events = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 -z-20">
+          <img 
+            src={eventsHero} 
+            alt="" 
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background" />
+        </div>
+        
         <WebGLFallback fallback={<GradientFallback className="opacity-50" />}>
           <Suspense fallback={null}>
             <FloatingShapes />

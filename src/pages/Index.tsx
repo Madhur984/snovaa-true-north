@@ -6,6 +6,7 @@ import { AnimatedText } from "@/components/ui/AnimatedText";
 import { Button } from "@/components/ui/button";
 import { Shield, Database, Eye, Lock, ArrowRight, Calendar, Users, MapPin, Sparkles } from "lucide-react";
 import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
+import heroBg from "@/assets/hero-bg.jpg";
 
 const HeroScene = lazy(() => import("@/components/3d/HeroScene").then(m => ({ default: m.HeroScene })));
 const FloatingShapes = lazy(() => import("@/components/3d/FloatingShapes").then(m => ({ default: m.FloatingShapes })));
@@ -48,6 +49,16 @@ const Index = () => {
     <Layout showHeader={true}>
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 -z-20">
+          <img 
+            src={heroBg} 
+            alt="" 
+            className="w-full h-full object-cover opacity-40"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/60" />
+        </div>
+        
         <WebGLFallback fallback={<GradientFallback />}>
           <Suspense fallback={<GradientFallback />}>
             <HeroScene />
