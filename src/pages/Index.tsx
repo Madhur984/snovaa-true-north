@@ -54,7 +54,7 @@ const Index = () => {
           <img 
             src={heroBg} 
             alt="" 
-            className="w-full h-full object-cover opacity-70 scale-105"
+            className="w-full h-full object-cover opacity-95 scale-105"
           />
           {/* Gradient overlay for readability */}
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-background/40" />
