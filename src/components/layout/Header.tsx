@@ -31,11 +31,14 @@ export const Header = () => {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
+            <Link to="/clubs" className="text-sm text-body hover:text-display transition-colors">
+              Clubs
+            </Link>
             <Link to="/events" className="text-sm text-body hover:text-display transition-colors">
               Events
             </Link>
             <Link to="/map" className="text-sm text-body hover:text-display transition-colors">
-              Participation Map
+              Density Map
             </Link>
             <Link to="/philosophy" className="text-sm text-body hover:text-display transition-colors">
               Philosophy
