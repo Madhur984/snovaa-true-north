@@ -11,9 +11,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save, Eye, Users, Image, Sparkles, Link as LinkIcon, QrCode } from "lucide-react";
+import { ArrowLeft, Save, Users, Sparkles, Link as LinkIcon, QrCode } from "lucide-react";
 import { EventMediaUpload } from "@/components/EventMediaUpload";
-
+import { EventLifecycleControls } from "@/components/EventLifecycleControls";
 interface Event {
   id: string;
   title: string;
@@ -174,25 +174,8 @@ const ManageEvent = () => {
     setSaving(false);
   };
 
-  const handlePublish = async () => {
-    const { error } = await supabase
-      .from("events")
-      .update({ status: "published", published_at: new Date().toISOString() })
-      .eq("id", id);
-
-    if (error) {
-      toast({
-        title: "Error publishing",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Event published",
-        description: "Your event is now visible to participants.",
-      });
-      setEvent(prev => prev ? { ...prev, status: "published" } : null);
-    }
+  const handleStatusChange = (newStatus: string) => {
+    setEvent(prev => prev ? { ...prev, status: newStatus } : null);
   };
 
   const handleAddSponsor = async () => {
@@ -287,6 +270,15 @@ const ManageEvent = () => {
           </Badge>
         </div>
 
+        {/* Lifecycle Controls */}
+        <div className="mb-6">
+          <EventLifecycleControls
+            eventId={id!}
+            currentStatus={event.status}
+            onStatusChange={handleStatusChange}
+          />
+        </div>
+
         <Tabs defaultValue="details">
           <TabsList className="mb-6">
             <TabsTrigger value="details">Details</TabsTrigger>
@@ -376,12 +368,6 @@ const ManageEvent = () => {
                     <Save className="w-4 h-4 mr-2" />
                     {saving ? "Saving..." : "Save Changes"}
                   </Button>
-                  {event.status === "draft" && (
-                    <Button variant="outline" onClick={handlePublish}>
-                      <Eye className="w-4 h-4 mr-2" />
-                      Publish Event
-                    </Button>
-                  )}
                 </div>
               </CardContent>
             </Card>
