@@ -1,13 +1,11 @@
-import { useEffect, useState, Suspense, lazy } from "react";
+import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, TrendingUp, Users } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
+import { useParallax } from "@/hooks/use-parallax";
 import mapHero from "@/assets/map-hero.jpg";
-
-const MapBackground = lazy(() => import("@/components/3d/MapBackground").then(m => ({ default: m.MapBackground })));
 
 interface CityStats {
   id: string;
@@ -104,26 +102,22 @@ const Map = () => {
   };
 
   const maxEvents = Math.max(...cityStats.map(c => c.event_count), 1);
+  const parallaxOffset = useParallax(0.2);
 
   return (
     <Layout>
-      {/* Background Image - Enhanced visibility */}
-      <div className="fixed inset-0 -z-30">
+      {/* Background Image with Parallax */}
+      <div className="fixed inset-0 -z-30 overflow-hidden">
         <img 
           src={mapHero} 
           alt="" 
-          className="w-full h-full object-cover opacity-75 scale-105"
+          className="w-full h-[120%] object-cover opacity-75"
+          style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }}
         />
         {/* Gradient overlay for readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/80 to-background" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60" />
       </div>
-      
-      <WebGLFallback fallback={<GradientFallback />}>
-        <Suspense fallback={<GradientFallback />}>
-          <MapBackground />
-        </Suspense>
-      </WebGLFallback>
       <div className="container max-w-6xl py-12 relative z-10">
         {/* Header */}
         <div className="mb-8 animate-fade-in">

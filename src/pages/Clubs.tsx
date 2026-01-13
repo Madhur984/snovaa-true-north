@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense, lazy } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,10 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Search, Users, Calendar, MapPin, Plus, ArrowRight, Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
+import { useParallax } from "@/hooks/use-parallax";
 import clubsHero from "@/assets/clubs-hero.jpg";
-
-const FloatingShapes = lazy(() => import("@/components/3d/FloatingShapes").then(m => ({ default: m.FloatingShapes })));
 
 interface Club {
   id: string;
@@ -89,27 +87,24 @@ const Clubs = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const parallaxOffset = useParallax(0.3);
+
   return (
     <Layout>
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        {/* Background Image - Enhanced visibility */}
-        <div className="absolute inset-0 -z-20">
+        {/* Background Image with Parallax */}
+        <div className="absolute inset-0 -z-20 overflow-hidden">
           <img 
             src={clubsHero} 
             alt="" 
-            className="w-full h-full object-cover opacity-85 scale-105"
+            className="w-full h-[120%] object-cover opacity-85"
+            style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }}
           />
           {/* Gradient overlay for readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
         </div>
-        
-        <WebGLFallback fallback={<GradientFallback className="opacity-50" />}>
-          <Suspense fallback={null}>
-            <FloatingShapes />
-          </Suspense>
-        </WebGLFallback>
         
         <div className="container max-w-6xl relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">

@@ -5,11 +5,10 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { AnimatedText } from "@/components/ui/AnimatedText";
 import { Button } from "@/components/ui/button";
 import { Shield, Database, Eye, Lock, ArrowRight, Calendar, Users, MapPin, Sparkles } from "lucide-react";
-import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
+import { useParallax } from "@/hooks/use-parallax";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const HeroScene = lazy(() => import("@/components/3d/HeroScene").then(m => ({ default: m.HeroScene })));
-const FloatingShapes = lazy(() => import("@/components/3d/FloatingShapes").then(m => ({ default: m.FloatingShapes })));
 
 const stats = [
   { label: "Active Events", value: "500+", icon: Calendar },
@@ -45,27 +44,28 @@ const features = [
 ];
 
 const Index = () => {
+  const parallaxOffset = useParallax(0.4);
+
   return (
     <Layout showHeader={true}>
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-        {/* Background Image - Enhanced visibility */}
-        <div className="absolute inset-0 -z-20">
+        {/* Background Image with Parallax */}
+        <div className="absolute inset-0 -z-20 overflow-hidden">
           <img 
             src={heroBg} 
             alt="" 
-            className="w-full h-full object-cover opacity-95 scale-105"
+            className="w-full h-[120%] object-cover opacity-95"
+            style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }}
           />
           {/* Gradient overlay for readability */}
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-background/40" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
         </div>
         
-        <WebGLFallback fallback={<GradientFallback />}>
-          <Suspense fallback={<GradientFallback />}>
-            <HeroScene />
-          </Suspense>
-        </WebGLFallback>
+        <Suspense fallback={null}>
+          <HeroScene />
+        </Suspense>
         
         <div className="container max-w-6xl relative z-10">
           <div className="max-w-3xl space-y-8">
@@ -121,11 +121,6 @@ const Index = () => {
 
       {/* Features Section */}
       <section className="relative py-32 overflow-hidden">
-        <WebGLFallback fallback={<GradientFallback className="opacity-50" />}>
-          <Suspense fallback={null}>
-            <FloatingShapes />
-          </Suspense>
-        </WebGLFallback>
         
         <div className="container max-w-6xl relative z-10">
           <div className="text-center mb-16">

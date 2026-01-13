@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense, lazy } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { GlassCard, GlassImageCard } from "@/components/ui/GlassCard";
 import { Calendar, MapPin, Clock, Search, Users, ArrowRight, Sparkles } from "lucide-react";
 import { format } from "date-fns";
-import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
+import { useParallax } from "@/hooks/use-parallax";
 import eventsHero from "@/assets/events-hero.jpg";
 
 // Event category images
@@ -18,8 +18,6 @@ import eventMusic from "@/assets/event-music.jpg";
 import eventWorkshop from "@/assets/event-workshop.jpg";
 import eventSocial from "@/assets/event-social.jpg";
 import eventArt from "@/assets/event-art.jpg";
-
-const FloatingShapes = lazy(() => import("@/components/3d/FloatingShapes").then(m => ({ default: m.FloatingShapes })));
 
 // Array of event images to cycle through
 const eventImages = [eventFitness, eventTech, eventMusic, eventWorkshop, eventSocial, eventArt];
@@ -73,27 +71,24 @@ const Events = () => {
     return eventImages[index % eventImages.length];
   };
 
+  const parallaxOffset = useParallax(0.3);
+
   return (
     <Layout>
       {/* Hero Section */}
       <section className="relative py-24 overflow-hidden">
-        {/* Background Image - Enhanced visibility */}
-        <div className="absolute inset-0 -z-20">
+        {/* Background Image with Parallax */}
+        <div className="absolute inset-0 -z-20 overflow-hidden">
           <img 
             src={eventsHero} 
             alt="" 
-            className="w-full h-full object-cover opacity-85 scale-105"
+            className="w-full h-[120%] object-cover opacity-85"
+            style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }}
           />
           {/* Gradient overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
         </div>
-        
-        <WebGLFallback fallback={<GradientFallback className="opacity-50" />}>
-          <Suspense fallback={null}>
-            <FloatingShapes />
-          </Suspense>
-        </WebGLFallback>
         
         <div className="container max-w-6xl relative z-10">
           <div className="max-w-3xl">
