@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { GlassCard, GlassImageCard } from "@/components/ui/GlassCard";
-import { Calendar, MapPin, Clock, Search, Users, ArrowRight, Sparkles } from "lucide-react";
+import { Calendar, MapPin, Clock, Search, Users, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
+import { AnimatedText } from "@/components/ui/AnimatedText";
 import { useParallax } from "@/hooks/use-parallax";
 import eventsHero from "@/assets/events-hero.jpg";
 
@@ -75,159 +74,149 @@ const Events = () => {
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative py-24 overflow-hidden">
+      {/* Hero Section - Editorial, minimal */}
+      <section className="relative py-32 md:py-40 overflow-hidden">
         {/* Background Image with Parallax */}
         <div className="absolute inset-0 -z-20 overflow-hidden">
           <img 
             src={eventsHero} 
             alt="" 
-            className="w-full h-[120%] object-cover opacity-85"
+            className="w-full h-[120%] object-cover opacity-40 grayscale-[30%]"
             style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }}
           />
-          {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-background/60" />
         </div>
         
-        <div className="container max-w-6xl relative z-10">
+        <div className="container max-w-5xl relative z-10">
           <div className="max-w-3xl">
-            <Badge className="mb-4 px-4 py-1.5 text-sm font-medium bg-primary/10 text-primary border-0 backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 mr-2" />
-              Verified Gatherings
-            </Badge>
+            <AnimatedText 
+              as="p" 
+              className="text-xs font-sans font-light tracking-luxury uppercase text-subtle mb-8"
+            >
+              Curated Gatherings
+            </AnimatedText>
             
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-medium text-display mb-4 leading-tight">
-              Discover{" "}
-              <span className="bg-gradient-to-r from-primary via-primary/80 to-teal-600 bg-clip-text text-transparent">
-                Authentic Events
-              </span>
-            </h1>
+            <AnimatedText as="h1" delay={100} className="font-serif font-light text-display mb-8">
+              Discover Events
+            </AnimatedText>
             
-            <p className="text-xl text-body max-w-2xl mb-8">
+            <AnimatedText as="p" delay={200} className="text-lg md:text-xl text-body font-light leading-relaxed max-w-xl mb-12">
               Browse verified events and register your participation. Every registration 
-              is recorded in the immutable ledger.
-            </p>
+              is recorded with integrity.
+            </AnimatedText>
 
-            {/* Enhanced Glass Search Bar */}
-            <GlassCard variant="frosted" className="p-2">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  placeholder="Search by event name, venue, or city..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-14 text-base border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
+            {/* Minimal Search */}
+            <AnimatedText delay={300} className="block">
+              <div className="border-b border-border/60 pb-4">
+                <div className="relative">
+                  <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
+                  <Input
+                    placeholder="Search events..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8 h-12 text-base border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-subtle font-light"
+                  />
+                </div>
               </div>
-            </GlassCard>
+            </AnimatedText>
           </div>
         </div>
       </section>
 
       {/* Events Grid */}
-      <section className="py-16">
-        <div className="container max-w-6xl">
+      <section className="py-20 md:py-32">
+        <div className="container max-w-5xl">
           {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div className="grid md:grid-cols-2 gap-12">
+              {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="animate-pulse">
-                  <div className="h-48 bg-muted/30 rounded-t-2xl backdrop-blur-sm"></div>
-                  <div className="h-48 bg-muted/50 rounded-b-2xl backdrop-blur-sm"></div>
+                  <div className="aspect-[4/3] bg-muted/30"></div>
+                  <div className="h-32 bg-muted/20 mt-6"></div>
                 </div>
               ))}
             </div>
           ) : filteredEvents.length === 0 ? (
-            <GlassCard variant="gradient" className="p-16 text-center">
-              <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-teal-500/20 flex items-center justify-center mb-6 backdrop-blur-sm">
-                <Calendar className="w-10 h-10 text-primary" />
-              </div>
-              <h2 className="font-serif text-2xl font-medium text-display mb-3">No events found</h2>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                {searchQuery ? "Try adjusting your search terms" : "Check back soon for upcoming verified events"}
+            <div className="text-center py-20">
+              <Calendar className="w-8 h-8 text-subtle mx-auto mb-6" />
+              <h2 className="font-serif text-2xl font-light text-display mb-4">No events found</h2>
+              <p className="text-body font-light max-w-md mx-auto mb-8">
+                {searchQuery ? "Try adjusting your search terms" : "Check back soon for upcoming events"}
               </p>
               {searchQuery && (
-                <Button variant="outline" onClick={() => setSearchQuery("")} className="rounded-xl">
+                <button 
+                  onClick={() => setSearchQuery("")} 
+                  className="text-xs font-sans tracking-luxury uppercase text-display link-underline"
+                >
                   Clear search
-                </Button>
+                </button>
               )}
-            </GlassCard>
+            </div>
           ) : (
             <>
-              <div className="flex items-center justify-between mb-8">
-                <GlassCard variant="frosted" className="px-4 py-2 inline-flex">
-                  <p className="text-body">
-                    <span className="font-medium text-display">{filteredEvents.length}</span> events found
-                  </p>
-                </GlassCard>
+              <div className="flex items-center justify-between mb-16 border-b border-border/40 pb-6">
+                <p className="text-xs font-sans tracking-luxury uppercase text-subtle">
+                  {filteredEvents.length} Events
+                </p>
               </div>
               
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-2 gap-x-12 gap-y-16">
                 {filteredEvents.map((event, index) => (
                   <Link
                     key={event.id}
                     to={`/events/${event.id}`}
-                    className="block opacity-0 animate-fade-in"
-                    style={{ animationDelay: `${index * 80}ms`, animationFillMode: "forwards" }}
+                    className="group block opacity-0 animate-fade-in"
+                    style={{ animationDelay: `${index * 100}ms`, animationFillMode: "forwards" }}
                   >
                     <GlassImageCard imageUrl={getEventImage(index)}>
-                      <div className="p-5">
-                        {/* Top badges - positioned over the image transition */}
-                        <div className="flex items-start justify-between mb-3 -mt-12 relative z-20">
-                          <Badge className="bg-white/90 dark:bg-black/70 text-foreground border-0 backdrop-blur-md shadow-lg">
-                            {event.city ? `${event.city.name}` : "TBA"}
-                          </Badge>
-                          {event.max_participants && (
-                            <span className="flex items-center gap-1 text-xs text-white bg-black/50 backdrop-blur-md px-2.5 py-1.5 rounded-full shadow-lg">
-                              <Users className="w-3 h-3" />
-                              {event.max_participants}
-                            </span>
-                          )}
-                        </div>
+                      <div className="p-6 md:p-8">
+                        {/* Location */}
+                        <p className="text-xs font-sans tracking-luxury uppercase text-subtle mb-4">
+                          {event.city ? event.city.name : "Location TBA"}
+                        </p>
 
-                        <h2 className="font-serif text-xl font-medium text-display mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                        <h2 className="font-serif text-xl md:text-2xl font-light text-display mb-4 group-hover:opacity-70 transition-opacity duration-500">
                           {event.title}
                         </h2>
 
                         {event.description && (
-                          <p className="text-body text-sm mb-4 line-clamp-2">
+                          <p className="text-body text-sm font-light mb-6 line-clamp-2 leading-relaxed">
                             {event.description}
                           </p>
                         )}
 
-                        <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                        <div className="space-y-3 text-sm text-subtle font-light mb-6">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center">
-                              <Calendar className="w-4 h-4 text-primary" />
-                            </div>
-                            <span>{format(new Date(event.event_date), "EEE, MMM d, yyyy")}</span>
+                            <Calendar className="w-4 h-4" />
+                            <span>{format(new Date(event.event_date), "MMMM d, yyyy")}</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center">
-                              <Clock className="w-4 h-4 text-primary" />
-                            </div>
+                            <Clock className="w-4 h-4" />
                             <span>
                               {event.start_time.slice(0, 5)}
-                              {event.end_time && ` - ${event.end_time.slice(0, 5)}`}
+                              {event.end_time && ` — ${event.end_time.slice(0, 5)}`}
                             </span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center">
-                              <MapPin className="w-4 h-4 text-primary" />
-                            </div>
+                            <MapPin className="w-4 h-4" />
                             <span className="line-clamp-1">{event.venue}</span>
                           </div>
+                          {event.max_participants && (
+                            <div className="flex items-center gap-3">
+                              <Users className="w-4 h-4" />
+                              <span>{event.max_participants} seats</span>
+                            </div>
+                          )}
                         </div>
 
-                        <div className="pt-4 border-t border-border/30 flex items-center justify-between">
+                        <div className="pt-6 border-t border-border/30 flex items-center justify-between">
                           {event.organizer && (
-                            <p className="text-xs text-subtle">
+                            <p className="text-xs text-subtle font-light">
                               by {event.organizer.display_name}
                             </p>
                           )}
-                          <span className="text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                            View Event
-                            <ArrowRight className="w-4 h-4" />
+                          <span className="text-xs font-sans tracking-luxury uppercase text-display flex items-center gap-2 group-hover:gap-4 transition-all duration-500">
+                            View
+                            <ArrowRight className="w-3 h-3" />
                           </span>
                         </div>
                       </div>
