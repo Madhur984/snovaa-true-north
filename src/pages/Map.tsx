@@ -107,14 +107,16 @@ const Map = () => {
 
   return (
     <Layout>
-      {/* Background Image */}
+      {/* Background Image - Enhanced visibility */}
       <div className="fixed inset-0 -z-30">
         <img 
           src={mapHero} 
           alt="" 
-          className="w-full h-full object-cover opacity-30"
+          className="w-full h-full object-cover opacity-50 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background" />
+        {/* Gradient overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/80 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60" />
       </div>
       
       <WebGLFallback fallback={<GradientFallback />}>

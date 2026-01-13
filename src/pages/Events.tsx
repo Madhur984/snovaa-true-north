@@ -77,15 +77,16 @@ const Events = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative py-24 overflow-hidden">
-        {/* Background Image with stronger blur */}
+        {/* Background Image - Enhanced visibility */}
         <div className="absolute inset-0 -z-20">
           <img 
             src={eventsHero} 
             alt="" 
-            className="w-full h-full object-cover opacity-30"
+            className="w-full h-full object-cover opacity-60 scale-105"
           />
-          <div className="absolute inset-0 backdrop-blur-sm" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+          {/* Gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
         </div>
         
         <WebGLFallback fallback={<GradientFallback className="opacity-50" />}>
