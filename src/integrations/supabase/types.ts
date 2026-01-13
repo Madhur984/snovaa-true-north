@@ -49,6 +49,52 @@ export type Database = {
           },
         ]
       }
+      checkpoint_records: {
+        Row: {
+          checkpoint_id: string
+          id: string
+          participant_id: string
+          recorded_at: string
+          recorded_by: string | null
+        }
+        Insert: {
+          checkpoint_id: string
+          id?: string
+          participant_id: string
+          recorded_at?: string
+          recorded_by?: string | null
+        }
+        Update: {
+          checkpoint_id?: string
+          id?: string
+          participant_id?: string
+          recorded_at?: string
+          recorded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkpoint_records_checkpoint_id_fkey"
+            columns: ["checkpoint_id"]
+            isOneToOne: false
+            referencedRelation: "event_checkpoints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkpoint_records_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkpoint_records_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cities: {
         Row: {
           country: string
@@ -75,6 +121,231 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      club_members: {
+        Row: {
+          club_id: string
+          id: string
+          joined_at: string
+          profile_id: string
+          status: string
+        }
+        Insert: {
+          club_id: string
+          id?: string
+          joined_at?: string
+          profile_id: string
+          status?: string
+        }
+        Update: {
+          club_id?: string
+          id?: string
+          joined_at?: string
+          profile_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_members_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_organizers: {
+        Row: {
+          added_at: string
+          club_id: string
+          id: string
+          profile_id: string
+          role: string
+        }
+        Insert: {
+          added_at?: string
+          club_id: string
+          id?: string
+          profile_id: string
+          role?: string
+        }
+        Update: {
+          added_at?: string
+          club_id?: string
+          id?: string
+          profile_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_organizers_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_organizers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clubs: {
+        Row: {
+          category: string
+          city_id: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          status: string
+          verified_at: string | null
+        }
+        Insert: {
+          category: string
+          city_id?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          status?: string
+          verified_at?: string | null
+        }
+        Update: {
+          category?: string
+          city_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          status?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clubs_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_blueprints: {
+        Row: {
+          category: string
+          created_at: string
+          default_config: Json
+          default_modules: Json
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          default_config?: Json
+          default_modules?: Json
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          default_config?: Json
+          default_modules?: Json
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      event_checkpoints: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          location: string | null
+          name: string
+          sequence_order: number
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          location?: string | null
+          name: string
+          sequence_order: number
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          location?: string | null
+          name?: string
+          sequence_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_checkpoints_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_lifecycle_log: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          event_id: string
+          id: string
+          new_status: string
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by: string
+          event_id: string
+          id?: string
+          new_status: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          event_id?: string
+          id?: string
+          new_status?: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_lifecycle_log_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_media: {
         Row: {
@@ -171,7 +442,9 @@ export type Database = {
       }
       events: {
         Row: {
+          blueprint_id: string | null
           city_id: string | null
+          club_id: string | null
           created_at: string
           description: string | null
           end_time: string | null
@@ -186,7 +459,9 @@ export type Database = {
           venue: string
         }
         Insert: {
+          blueprint_id?: string | null
           city_id?: string | null
+          club_id?: string | null
           created_at?: string
           description?: string | null
           end_time?: string | null
@@ -201,7 +476,9 @@ export type Database = {
           venue: string
         }
         Update: {
+          blueprint_id?: string | null
           city_id?: string | null
+          club_id?: string | null
           created_at?: string
           description?: string | null
           end_time?: string | null
@@ -217,10 +494,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "events_blueprint_id_fkey"
+            columns: ["blueprint_id"]
+            isOneToOne: false
+            referencedRelation: "event_blueprints"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "events_city_id_fkey"
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
             referencedColumns: ["id"]
           },
           {
@@ -352,6 +643,30 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -369,6 +684,13 @@ export type Database = {
       get_participation_status: {
         Args: { p_event_id: string; p_participant_id: string }
         Returns: string
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
