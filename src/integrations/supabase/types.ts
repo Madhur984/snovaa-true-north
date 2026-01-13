@@ -14,16 +14,365 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_suggestions: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          status: string
+          suggestion_data: Json
+          suggestion_type: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          status?: string
+          suggestion_data: Json
+          suggestion_type: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          status?: string
+          suggestion_data?: Json
+          suggestion_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_suggestions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cities: {
+        Row: {
+          country: string
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+        }
+        Insert: {
+          country: string
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+        }
+        Relationships: []
+      }
+      event_media: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          event_id: string
+          id: string
+          media_type: string
+          status: string
+          storage_path: string
+          uploaded_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          event_id: string
+          id?: string
+          media_type: string
+          status?: string
+          storage_path: string
+          uploaded_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          event_id?: string
+          id?: string
+          media_type?: string
+          status?: string
+          storage_path?: string
+          uploaded_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_modules: {
+        Row: {
+          config: Json | null
+          created_at: string
+          enabled: boolean
+          event_id: string
+          id: string
+          module_type: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          enabled?: boolean
+          event_id: string
+          id?: string
+          module_type: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          enabled?: boolean
+          event_id?: string
+          id?: string
+          module_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_modules_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          city_id: string | null
+          created_at: string
+          description: string | null
+          end_time: string | null
+          event_date: string
+          id: string
+          max_participants: number | null
+          organizer_id: string
+          published_at: string | null
+          start_time: string
+          status: string
+          title: string
+          venue: string
+        }
+        Insert: {
+          city_id?: string | null
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          event_date: string
+          id?: string
+          max_participants?: number | null
+          organizer_id: string
+          published_at?: string | null
+          start_time: string
+          status?: string
+          title: string
+          venue: string
+        }
+        Update: {
+          city_id?: string | null
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          event_date?: string
+          id?: string
+          max_participants?: number | null
+          organizer_id?: string
+          published_at?: string | null
+          start_time?: string
+          status?: string
+          title?: string
+          venue?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      participation_ledger: {
+        Row: {
+          action: string
+          event_id: string
+          id: string
+          metadata: Json | null
+          participant_id: string
+          recorded_at: string
+          recorded_by: string | null
+        }
+        Insert: {
+          action: string
+          event_id: string
+          id?: string
+          metadata?: Json | null
+          participant_id: string
+          recorded_at?: string
+          recorded_by?: string | null
+        }
+        Update: {
+          action?: string
+          event_id?: string
+          id?: string
+          metadata?: Json | null
+          participant_id?: string
+          recorded_at?: string
+          recorded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participation_ledger_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participation_ledger_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participation_ledger_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          email: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          email?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          email?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
+      sponsor_access: {
+        Row: {
+          access_token: string
+          created_at: string
+          event_id: string
+          expires_at: string | null
+          id: string
+          permissions: Json | null
+          sponsor_name: string
+        }
+        Insert: {
+          access_token?: string
+          created_at?: string
+          event_id: string
+          expires_at?: string | null
+          id?: string
+          permissions?: Json | null
+          sponsor_name: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          event_id?: string
+          expires_at?: string | null
+          id?: string
+          permissions?: Json | null
+          sponsor_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsor_access_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_event_participation_count: {
+        Args: { p_event_id: string }
+        Returns: {
+          attended: number
+          cancelled: number
+          confirmed: number
+          registered: number
+        }[]
+      }
+      get_participation_status: {
+        Args: { p_event_id: string; p_participant_id: string }
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "participant" | "organizer" | "sponsor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +499,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["participant", "organizer", "sponsor"],
+    },
   },
 } as const
