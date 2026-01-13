@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
 import { MapPin, TrendingUp, Users } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { AnimatedText } from "@/components/ui/AnimatedText";
 import { useParallax } from "@/hooks/use-parallax";
 import mapHero from "@/assets/map-hero.jpg";
 
@@ -26,235 +26,89 @@ const Map = () => {
   }, []);
 
   const fetchCityStats = async () => {
-    // Get all cities with their event counts
-    const { data: cities } = await supabase
-      .from("cities")
-      .select("id, name, country");
+    const { data: cities } = await supabase.from("cities").select("id, name, country");
+    if (!cities) { setLoading(false); return; }
 
-    if (!cities) {
-      setLoading(false);
-      return;
-    }
+    const { data: events } = await supabase.from("events").select("city_id").in("status", ["published", "completed"]);
+    const { data: participation } = await supabase.from("participation_ledger").select("event_id, action");
 
-    // Get event counts per city
-    const { data: events } = await supabase
-      .from("events")
-      .select("city_id")
-      .in("status", ["published", "completed"]);
-
-    // Get participation counts per event
-    const { data: participation } = await supabase
-      .from("participation_ledger")
-      .select("event_id, action");
-
-    // Calculate stats
     const eventCountByCity: Record<string, number> = {};
-    const participationByCity: Record<string, number> = {};
-
     events?.forEach((event) => {
-      if (event.city_id) {
-        eventCountByCity[event.city_id] = (eventCountByCity[event.city_id] || 0) + 1;
-      }
-    });
-
-    // Count unique attended participants per city
-    const attendedByEvent: Record<string, Set<string>> = {};
-    participation?.filter(p => p.action === "attended").forEach((p) => {
-      if (!attendedByEvent[p.event_id]) {
-        attendedByEvent[p.event_id] = new Set();
-      }
-      attendedByEvent[p.event_id].add(p.event_id);
-    });
-
-    // Map events to cities for participation
-    events?.forEach((event) => {
-      if (event.city_id && attendedByEvent[event.city_id]) {
-        participationByCity[event.city_id] = (participationByCity[event.city_id] || 0) + 
-          attendedByEvent[event.city_id].size;
-      }
+      if (event.city_id) eventCountByCity[event.city_id] = (eventCountByCity[event.city_id] || 0) + 1;
     });
 
     const stats: CityStats[] = cities.map((city) => ({
-      id: city.id,
-      name: city.name,
-      country: city.country,
-      event_count: eventCountByCity[city.id] || 0,
-      total_participation: participationByCity[city.id] || 0,
+      id: city.id, name: city.name, country: city.country,
+      event_count: eventCountByCity[city.id] || 0, total_participation: 0,
     }));
 
-    // Sort by event count
     stats.sort((a, b) => b.event_count - a.event_count);
-
     setCityStats(stats);
     setTotalEvents(events?.length || 0);
     setTotalParticipation(participation?.filter(p => p.action === "attended").length || 0);
     setLoading(false);
   };
 
-  const getIntensity = (count: number, max: number): string => {
-    if (max === 0) return "bg-muted";
-    const ratio = count / max;
-    if (ratio > 0.7) return "bg-primary";
-    if (ratio > 0.4) return "bg-primary/70";
-    if (ratio > 0.1) return "bg-primary/40";
-    if (ratio > 0) return "bg-primary/20";
-    return "bg-muted";
-  };
-
-  const maxEvents = Math.max(...cityStats.map(c => c.event_count), 1);
   const parallaxOffset = useParallax(0.2);
 
   return (
     <Layout>
-      {/* Background Image with Parallax */}
       <div className="fixed inset-0 -z-30 overflow-hidden">
-        <img 
-          src={mapHero} 
-          alt="" 
-          className="w-full h-[120%] object-cover opacity-75"
-          style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }}
-        />
-        {/* Gradient overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/80 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60" />
+        <img src={mapHero} alt="" className="w-full h-[120%] object-cover opacity-30 grayscale-[40%]"
+          style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }} />
+        <div className="absolute inset-0 bg-background/70" />
       </div>
-      <div className="container max-w-6xl py-12 relative z-10">
-        {/* Header */}
-        <div className="mb-8 animate-fade-in">
-          <h1 className="font-serif text-4xl font-medium text-display mb-3">
-            Participation Density Map
-          </h1>
-          <p className="text-body text-lg max-w-2xl">
-            City-level view of participation volume. No live tracking, no individual 
-            identification—just aggregate truth about where people gather.
-          </p>
+
+      <div className="container max-w-5xl py-32 relative z-10">
+        <AnimatedText as="p" className="text-xs font-sans font-light tracking-luxury uppercase text-subtle mb-8">
+          Global Presence
+        </AnimatedText>
+        <AnimatedText as="h1" delay={100} className="font-serif font-light text-display mb-8">
+          Participation Density
+        </AnimatedText>
+        <AnimatedText as="p" delay={200} className="text-lg text-body font-light max-w-xl mb-16">
+          City-level view of participation volume. No live tracking—just aggregate truth.
+        </AnimatedText>
+
+        {/* Stats */}
+        <div className="grid md:grid-cols-3 gap-px bg-border/30 mb-20">
+          {[
+            { label: "Cities", value: cityStats.length, icon: MapPin },
+            { label: "Events", value: totalEvents, icon: TrendingUp },
+            { label: "Attendees", value: totalParticipation, icon: Users },
+          ].map((stat, i) => (
+            <div key={stat.label} className="bg-background p-12 text-center opacity-0 animate-fade-in"
+              style={{ animationDelay: `${300 + i * 100}ms`, animationFillMode: "forwards" }}>
+              <p className="font-serif text-4xl font-light text-display mb-2">{stat.value}</p>
+              <p className="text-xs font-sans tracking-luxury uppercase text-subtle">{stat.label}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Global Stats */}
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <GlassCard className="p-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <p className="text-sm text-muted-foreground mb-2">Total Cities</p>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-primary" />
-              <span className="text-3xl font-serif font-medium text-display">
-                {cityStats.length}
-              </span>
-            </div>
-          </GlassCard>
-          <GlassCard className="p-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <p className="text-sm text-muted-foreground mb-2">Published Events</p>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <span className="text-3xl font-serif font-medium text-display">
-                {totalEvents}
-              </span>
-            </div>
-          </GlassCard>
-          <GlassCard className="p-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <p className="text-sm text-muted-foreground mb-2">Total Attendance Records</p>
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              <span className="text-3xl font-serif font-medium text-display">
-                {totalParticipation}
-              </span>
-            </div>
-          </GlassCard>
-        </div>
-
-        {/* City Heatmap Grid */}
-        <GlassCard className="p-6 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-          <h2 className="font-serif text-xl font-medium text-display mb-2">City Participation Density</h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            Visual representation of event activity by city. Darker colors indicate higher volume.
-          </p>
-          
+        {/* City List */}
+        <GlassCard variant="bordered" className="p-8 md:p-12">
+          <h2 className="font-serif text-xl font-light text-display mb-8">City Rankings</h2>
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="h-32 bg-muted/50 animate-pulse rounded-xl"></div>
-              ))}
-            </div>
+            <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="h-16 bg-muted/20 animate-pulse" />)}</div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="space-y-0">
               {cityStats.map((city, index) => (
-                <div
-                  key={city.id}
-                  className={`p-4 rounded-xl transition-all duration-300 hover:scale-105 cursor-pointer ${getIntensity(city.event_count, maxEvents)}`}
-                  style={{ animationDelay: `${0.5 + index * 0.05}s` }}
-                >
-                  <div className="flex flex-col h-full justify-between min-h-[100px]">
+                <div key={city.id} className="flex items-center justify-between py-6 border-t border-border/30 first:border-0">
+                  <div className="flex items-center gap-6">
+                    <span className="font-serif text-2xl font-light text-subtle w-12">{String(index + 1).padStart(2, '0')}</span>
                     <div>
-                      <h3 className="font-medium text-primary-foreground text-sm mb-1">
-                        {city.name}
-                      </h3>
-                      <p className="text-xs text-primary-foreground/70">{city.country}</p>
+                      <p className="font-light text-display">{city.name}</p>
+                      <p className="text-xs text-subtle">{city.country}</p>
                     </div>
-                    <div className="mt-4">
-                      <Badge variant="secondary" className="text-xs bg-background/20 backdrop-blur-sm">
-                        {city.event_count} events
-                      </Badge>
-                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-serif text-2xl font-light text-display">{city.event_count}</p>
+                    <p className="text-xs text-subtle">events</p>
                   </div>
                 </div>
               ))}
             </div>
           )}
-
-          {/* Legend */}
-          <div className="mt-8 pt-6 border-t border-border/50">
-            <p className="text-sm text-muted-foreground mb-3">Density Legend</p>
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-muted"></div>
-                <span className="text-xs text-muted-foreground">No events</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-primary/20"></div>
-                <span className="text-xs text-muted-foreground">Low</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-primary/40"></div>
-                <span className="text-xs text-muted-foreground">Medium</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-primary/70"></div>
-                <span className="text-xs text-muted-foreground">High</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-primary"></div>
-                <span className="text-xs text-muted-foreground">Very High</span>
-              </div>
-            </div>
-          </div>
-        </GlassCard>
-
-        {/* City List */}
-        <GlassCard className="p-6 mt-8 animate-fade-in" style={{ animationDelay: "0.5s" }}>
-          <h2 className="font-serif text-xl font-medium text-display mb-2">City Rankings</h2>
-          <p className="text-sm text-muted-foreground mb-6">Ordered by number of events</p>
-          
-          <div className="space-y-2">
-            {cityStats.map((city, index) => (
-              <div
-                key={city.id}
-                className="flex items-center justify-between p-4 rounded-xl bg-muted/20 backdrop-blur-sm border border-border/30 transition-all duration-300 hover:bg-muted/40 hover:border-primary/20"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-sm font-medium text-primary">
-                    {index + 1}
-                  </span>
-                  <div>
-                    <p className="font-medium text-display">{city.name}</p>
-                    <p className="text-sm text-muted-foreground">{city.country}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-serif font-medium text-display">{city.event_count}</p>
-                  <p className="text-xs text-muted-foreground">events</p>
-                </div>
-              </div>
-            ))}
-          </div>
         </GlassCard>
       </div>
     </Layout>

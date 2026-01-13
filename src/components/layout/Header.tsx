@@ -13,17 +13,18 @@ export const Header = () => {
   };
 
   return (
-    <header className="border-b border-border/50 sticky top-0 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 z-50">
-      <div className="container max-w-6xl py-4">
+    <header className="border-b border-hairline border-border/30 sticky top-0 bg-background/95 backdrop-blur-sm z-50">
+      <div className="container max-w-6xl py-6">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-teal-600 flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
-              <span className="text-primary-foreground font-serif font-semibold text-lg">S</span>
-            </div>
-            <span className="font-serif text-2xl font-medium text-display">SNOVAA</span>
+          {/* Logo - Minimal, typographic */}
+          <Link to="/" className="group">
+            <span className="font-serif text-xl md:text-2xl font-light tracking-wider text-display">
+              SNOVAA
+            </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1">
+          {/* Navigation - Thin, spaced, understated */}
+          <nav className="hidden md:flex items-center gap-12">
             {[
               { to: "/clubs", label: "Clubs" },
               { to: "/events", label: "Events" },
@@ -33,24 +34,31 @@ export const Header = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className="px-4 py-2 text-sm text-body hover:text-display hover:bg-muted/50 rounded-lg transition-all"
+                className="text-xs font-sans font-light tracking-luxury uppercase text-body hover:text-display link-underline transition-colors duration-500"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          {/* Auth - Minimal */}
+          <div className="flex items-center gap-6">
             {user ? (
               <AccountMenu label={profile?.display_name || "Account"} onSignOut={handleSignOut} />
             ) : (
               <>
-                <Button variant="ghost" size="sm" asChild className="rounded-lg">
-                  <Link to="/login">Sign In</Link>
-                </Button>
-                <Button size="sm" asChild className="rounded-lg shadow-md shadow-primary/20 hover:shadow-primary/30 transition-shadow">
-                  <Link to="/signup">Get Started</Link>
-                </Button>
+                <Link 
+                  to="/login"
+                  className="text-xs font-sans font-light tracking-luxury uppercase text-body hover:text-display link-underline transition-colors duration-500"
+                >
+                  Sign In
+                </Link>
+                <Link 
+                  to="/signup"
+                  className="text-xs font-sans font-light tracking-luxury uppercase text-display border border-border/60 px-6 py-3 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-500"
+                >
+                  Join
+                </Link>
               </>
             )}
           </div>
