@@ -8,7 +8,7 @@ interface LayoutProps {
 
 export const Layout = ({ children, showHeader = true }: LayoutProps) => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent">
       {showHeader && <Header />}
       <main>{children}</main>
       <footer className="py-12 border-t border-border mt-auto">

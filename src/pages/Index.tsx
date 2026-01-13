@@ -49,14 +49,16 @@ const Index = () => {
     <Layout showHeader={true}>
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-        {/* Background Image */}
+        {/* Background Image - Enhanced visibility */}
         <div className="absolute inset-0 -z-20">
           <img 
             src={heroBg} 
             alt="" 
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover opacity-70 scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/60" />
+          {/* Gradient overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-background/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
         </div>
         
         <WebGLFallback fallback={<GradientFallback />}>

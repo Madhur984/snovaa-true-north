@@ -93,14 +93,16 @@ const Clubs = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        {/* Background Image */}
+        {/* Background Image - Enhanced visibility */}
         <div className="absolute inset-0 -z-20">
           <img 
             src={clubsHero} 
             alt="" 
-            className="w-full h-full object-cover opacity-20"
+            className="w-full h-full object-cover opacity-60 scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background" />
+          {/* Gradient overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
         </div>
         
         <WebGLFallback fallback={<GradientFallback className="opacity-50" />}>
