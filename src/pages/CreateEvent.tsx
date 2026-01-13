@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Sparkles, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, Loader2, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface ModuleSuggestion {
@@ -44,6 +44,15 @@ interface City {
   country: string;
 }
 
+interface Blueprint {
+  id: string;
+  name: string;
+  category: string;
+  description: string | null;
+  default_modules: string[];
+  default_config: { max_participants?: number; duration_hours?: number };
+}
+
 const moduleTypes = [
   { id: "agenda", label: "Agenda / Schedule", description: "Show event timeline" },
   { id: "speakers", label: "Speakers", description: "Feature event speakers" },
@@ -58,6 +67,8 @@ const CreateEvent = () => {
   const { toast } = useToast();
 
   const [cities, setCities] = useState<City[]>([]);
+  const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
+  const [selectedBlueprint, setSelectedBlueprint] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestions | null>(null);
@@ -89,10 +100,41 @@ const CreateEvent = () => {
     }
 
     (async () => {
-      const { data } = await supabase.from("cities").select("*").order("name");
-      if (data) setCities(data);
+      const [citiesRes, blueprintsRes] = await Promise.all([
+        supabase.from("cities").select("*").order("name"),
+        supabase.from("event_blueprints").select("*").order("name"),
+      ]);
+      if (citiesRes.data) setCities(citiesRes.data);
+      if (blueprintsRes.data) {
+        setBlueprints(
+          blueprintsRes.data.map((b) => ({
+            ...b,
+            default_modules: Array.isArray(b.default_modules) ? b.default_modules : [],
+            default_config: typeof b.default_config === "object" && b.default_config !== null ? b.default_config : {},
+          })) as Blueprint[]
+        );
+      }
     })();
   }, [authLoading, profile?.id, profile?.role, navigate, toast]);
+
+  const handleBlueprintChange = (blueprintId: string) => {
+    setSelectedBlueprint(blueprintId);
+    const blueprint = blueprints.find((b) => b.id === blueprintId);
+    if (blueprint) {
+      setSelectedModules(blueprint.default_modules);
+      if (blueprint.default_config.max_participants) {
+        setFormData((prev) => ({
+          ...prev,
+          max_participants: blueprint.default_config.max_participants?.toString() || "",
+        }));
+      }
+      setAiSuggestions(null);
+      toast({
+        title: `${blueprint.name} template applied`,
+        description: `${blueprint.default_modules.length} modules pre-selected.`,
+      });
+    }
+  };
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -221,6 +263,58 @@ const CreateEvent = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Blueprint Selection */}
+          {blueprints.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-serif flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Start from Template
+                </CardTitle>
+                <CardDescription>
+                  Choose a pre-configured template to auto-fill modules and settings
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {blueprints.map((blueprint) => (
+                    <div
+                      key={blueprint.id}
+                      onClick={() => handleBlueprintChange(blueprint.id)}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                        selectedBlueprint === blueprint.id
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50 hover:bg-muted/50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-sm">{blueprint.name}</span>
+                        <Badge variant="outline" className="text-xs capitalize">
+                          {blueprint.category}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {blueprint.description}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {blueprint.default_modules.slice(0, 3).map((m) => (
+                          <Badge key={m} variant="secondary" className="text-xs">
+                            {m}
+                          </Badge>
+                        ))}
+                        {blueprint.default_modules.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{blueprint.default_modules.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Basic Info */}
           <Card>
             <CardHeader>
