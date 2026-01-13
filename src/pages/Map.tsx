@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense, lazy } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, TrendingUp, Users } from "lucide-react";
-import { MapBackground } from "@/components/3d/MapBackground";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
+
+const MapBackground = lazy(() => import("@/components/3d/MapBackground").then(m => ({ default: m.MapBackground })));
 
 interface CityStats {
   id: string;
@@ -105,7 +106,11 @@ const Map = () => {
 
   return (
     <Layout>
-      <MapBackground />
+      <WebGLFallback fallback={<GradientFallback />}>
+        <Suspense fallback={<GradientFallback />}>
+          <MapBackground />
+        </Suspense>
+      </WebGLFallback>
       <div className="container max-w-6xl py-12 relative z-10">
         {/* Header */}
         <div className="mb-8 animate-fade-in">

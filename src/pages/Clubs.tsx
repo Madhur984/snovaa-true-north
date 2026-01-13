@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Search, Users, Calendar, MapPin, Plus, ArrowRight, Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
 
 const FloatingShapes = lazy(() => import("@/components/3d/FloatingShapes").then(m => ({ default: m.FloatingShapes })));
 
@@ -91,9 +92,11 @@ const Clubs = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        <Suspense fallback={null}>
-          <FloatingShapes />
-        </Suspense>
+        <WebGLFallback fallback={<GradientFallback className="opacity-50" />}>
+          <Suspense fallback={null}>
+            <FloatingShapes />
+          </Suspense>
+        </WebGLFallback>
         
         <div className="container max-w-6xl relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
