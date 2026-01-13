@@ -23,7 +23,7 @@ interface Participation {
   id: string;
   action: string;
   recorded_at: string;
-  event: Event;
+  event: Event | null;
 }
 
 const Dashboard = () => {
@@ -211,18 +211,20 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {myParticipation.map((record) => (
+                  {myParticipation
+                    .filter((record) => record.event !== null)
+                    .map((record) => (
                     <div 
                       key={record.id}
                       className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
                     >
                       <div>
-                        <p className="font-medium text-display text-sm">{record.event.title}</p>
+                        <p className="font-medium text-display text-sm">{record.event!.title}</p>
                         <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                          {record.event.city && (
+                          {record.event!.city && (
                             <span className="flex items-center gap-1">
                               <MapPin className="w-3 h-3" />
-                              {record.event.city.name}
+                              {record.event!.city.name}
                             </span>
                           )}
                           <span>
