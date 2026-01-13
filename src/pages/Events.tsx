@@ -5,13 +5,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { GlassCard } from "@/components/ui/GlassCard";
+import { GlassCard, GlassImageCard } from "@/components/ui/GlassCard";
 import { Calendar, MapPin, Clock, Search, Users, ArrowRight, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { WebGLFallback, GradientFallback } from "@/components/3d/WebGLFallback";
 import eventsHero from "@/assets/events-hero.jpg";
 
+// Event category images
+import eventFitness from "@/assets/event-fitness.jpg";
+import eventTech from "@/assets/event-tech.jpg";
+import eventMusic from "@/assets/event-music.jpg";
+import eventWorkshop from "@/assets/event-workshop.jpg";
+import eventSocial from "@/assets/event-social.jpg";
+import eventArt from "@/assets/event-art.jpg";
+
 const FloatingShapes = lazy(() => import("@/components/3d/FloatingShapes").then(m => ({ default: m.FloatingShapes })));
+
+// Array of event images to cycle through
+const eventImages = [eventFitness, eventTech, eventMusic, eventWorkshop, eventSocial, eventArt];
 
 interface Event {
   id: string;
@@ -57,18 +68,24 @@ const Events = () => {
       event.city?.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Get an image for an event based on its index
+  const getEventImage = (index: number) => {
+    return eventImages[index % eventImages.length];
+  };
+
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        {/* Background Image */}
+      <section className="relative py-24 overflow-hidden">
+        {/* Background Image with stronger blur */}
         <div className="absolute inset-0 -z-20">
           <img 
             src={eventsHero} 
             alt="" 
-            className="w-full h-full object-cover opacity-20"
+            className="w-full h-full object-cover opacity-30"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background" />
+          <div className="absolute inset-0 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
         </div>
         
         <WebGLFallback fallback={<GradientFallback className="opacity-50" />}>
@@ -79,7 +96,7 @@ const Events = () => {
         
         <div className="container max-w-6xl relative z-10">
           <div className="max-w-3xl">
-            <Badge className="mb-4 px-4 py-1.5 text-sm font-medium bg-primary/10 text-primary border-0">
+            <Badge className="mb-4 px-4 py-1.5 text-sm font-medium bg-primary/10 text-primary border-0 backdrop-blur-sm">
               <Sparkles className="w-4 h-4 mr-2" />
               Verified Gatherings
             </Badge>
@@ -96,8 +113,8 @@ const Events = () => {
               is recorded in the immutable ledger.
             </p>
 
-            {/* Search */}
-            <GlassCard className="p-2">
+            {/* Enhanced Glass Search Bar */}
+            <GlassCard variant="frosted" className="p-2">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -116,16 +133,17 @@ const Events = () => {
       <section className="py-16">
         <div className="container max-w-6xl">
           {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="animate-pulse">
-                  <div className="h-64 bg-muted/50 rounded-2xl backdrop-blur-sm"></div>
+                  <div className="h-48 bg-muted/30 rounded-t-2xl backdrop-blur-sm"></div>
+                  <div className="h-48 bg-muted/50 rounded-b-2xl backdrop-blur-sm"></div>
                 </div>
               ))}
             </div>
           ) : filteredEvents.length === 0 ? (
-            <GlassCard className="p-16 text-center">
-              <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-teal-500/20 flex items-center justify-center mb-6">
+            <GlassCard variant="gradient" className="p-16 text-center">
+              <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-teal-500/20 flex items-center justify-center mb-6 backdrop-blur-sm">
                 <Calendar className="w-10 h-10 text-primary" />
               </div>
               <h2 className="font-serif text-2xl font-medium text-display mb-3">No events found</h2>
@@ -141,78 +159,83 @@ const Events = () => {
           ) : (
             <>
               <div className="flex items-center justify-between mb-8">
-                <p className="text-body">
-                  <span className="font-medium text-display">{filteredEvents.length}</span> events found
-                </p>
+                <GlassCard variant="frosted" className="px-4 py-2 inline-flex">
+                  <p className="text-body">
+                    <span className="font-medium text-display">{filteredEvents.length}</span> events found
+                  </p>
+                </GlassCard>
               </div>
               
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredEvents.map((event, index) => (
                   <Link
                     key={event.id}
                     to={`/events/${event.id}`}
-                    className="group block opacity-0 animate-fade-in"
-                    style={{ animationDelay: `${index * 50}ms`, animationFillMode: "forwards" }}
+                    className="block opacity-0 animate-fade-in"
+                    style={{ animationDelay: `${index * 80}ms`, animationFillMode: "forwards" }}
                   >
-                    <GlassCard hover className="h-full p-6 flex flex-col">
-                      <div className="flex items-start justify-between mb-4">
-                        <Badge className="bg-primary/10 text-primary border-0 hover:bg-primary/20">
-                          {event.city ? `${event.city.name}` : "TBA"}
-                        </Badge>
-                        {event.max_participants && (
-                          <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
-                            <Users className="w-3 h-3" />
-                            {event.max_participants}
-                          </span>
-                        )}
-                      </div>
-
-                      <h2 className="font-serif text-xl font-medium text-display mb-3 group-hover:text-primary transition-colors line-clamp-2">
-                        {event.title}
-                      </h2>
-
-                      {event.description && (
-                        <p className="text-body text-sm mb-4 line-clamp-2 flex-grow">
-                          {event.description}
-                        </p>
-                      )}
-
-                      <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Calendar className="w-4 h-4 text-primary" />
-                          </div>
-                          <span>{format(new Date(event.event_date), "EEE, MMM d, yyyy")}</span>
+                    <GlassImageCard imageUrl={getEventImage(index)}>
+                      <div className="p-5">
+                        {/* Top badges - positioned over the image transition */}
+                        <div className="flex items-start justify-between mb-3 -mt-12 relative z-20">
+                          <Badge className="bg-white/90 dark:bg-black/70 text-foreground border-0 backdrop-blur-md shadow-lg">
+                            {event.city ? `${event.city.name}` : "TBA"}
+                          </Badge>
+                          {event.max_participants && (
+                            <span className="flex items-center gap-1 text-xs text-white bg-black/50 backdrop-blur-md px-2.5 py-1.5 rounded-full shadow-lg">
+                              <Users className="w-3 h-3" />
+                              {event.max_participants}
+                            </span>
+                          )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Clock className="w-4 h-4 text-primary" />
-                          </div>
-                          <span>
-                            {event.start_time.slice(0, 5)}
-                            {event.end_time && ` - ${event.end_time.slice(0, 5)}`}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <MapPin className="w-4 h-4 text-primary" />
-                          </div>
-                          <span className="line-clamp-1">{event.venue}</span>
-                        </div>
-                      </div>
 
-                      <div className="mt-auto pt-4 border-t border-border/50 flex items-center justify-between">
-                        {event.organizer && (
-                          <p className="text-xs text-subtle">
-                            by {event.organizer.display_name}
+                        <h2 className="font-serif text-xl font-medium text-display mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                          {event.title}
+                        </h2>
+
+                        {event.description && (
+                          <p className="text-body text-sm mb-4 line-clamp-2">
+                            {event.description}
                           </p>
                         )}
-                        <span className="text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                          View Event
-                          <ArrowRight className="w-4 h-4" />
-                        </span>
+
+                        <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center">
+                              <Calendar className="w-4 h-4 text-primary" />
+                            </div>
+                            <span>{format(new Date(event.event_date), "EEE, MMM d, yyyy")}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center">
+                              <Clock className="w-4 h-4 text-primary" />
+                            </div>
+                            <span>
+                              {event.start_time.slice(0, 5)}
+                              {event.end_time && ` - ${event.end_time.slice(0, 5)}`}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center">
+                              <MapPin className="w-4 h-4 text-primary" />
+                            </div>
+                            <span className="line-clamp-1">{event.venue}</span>
+                          </div>
+                        </div>
+
+                        <div className="pt-4 border-t border-border/30 flex items-center justify-between">
+                          {event.organizer && (
+                            <p className="text-xs text-subtle">
+                              by {event.organizer.display_name}
+                            </p>
+                          )}
+                          <span className="text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                            View Event
+                            <ArrowRight className="w-4 h-4" />
+                          </span>
+                        </div>
                       </div>
-                    </GlassCard>
+                    </GlassImageCard>
                   </Link>
                 ))}
               </div>
