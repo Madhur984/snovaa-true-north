@@ -605,6 +605,45 @@ export type Database = {
         }
         Relationships: []
       }
+      reminder_log: {
+        Row: {
+          event_id: string
+          id: string
+          participant_id: string
+          reminder_type: string
+          sent_at: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          participant_id: string
+          reminder_type?: string
+          sent_at?: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          participant_id?: string
+          reminder_type?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_log_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reminder_log_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sponsor_access: {
         Row: {
           access_token: string
