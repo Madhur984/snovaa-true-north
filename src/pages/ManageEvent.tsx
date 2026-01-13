@@ -11,7 +11,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save, Eye, Users, Image, Sparkles, Link as LinkIcon } from "lucide-react";
+import { ArrowLeft, Save, Eye, Users, Image, Sparkles, Link as LinkIcon, QrCode } from "lucide-react";
+import { EventMediaUpload } from "@/components/EventMediaUpload";
 
 interface Event {
   id: string;
@@ -378,14 +379,22 @@ const ManageEvent = () => {
 
           <TabsContent value="participants">
             <Card>
-              <CardHeader>
-                <CardTitle className="font-serif flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Participants
-                </CardTitle>
-                <CardDescription>
-                  {participants.length} participants registered
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="font-serif flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Participants
+                  </CardTitle>
+                  <CardDescription>
+                    {participants.length} participants registered
+                  </CardDescription>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a href={`/events/${id}/checkin`}>
+                    <QrCode className="w-4 h-4 mr-2" />
+                    Check-In Mode
+                  </a>
+                </Button>
               </CardHeader>
               <CardContent>
                 {participants.length === 0 ? (
@@ -431,26 +440,7 @@ const ManageEvent = () => {
           </TabsContent>
 
           <TabsContent value="media">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-serif flex items-center gap-2">
-                  <Image className="w-5 h-5" />
-                  Event Memory
-                </CardTitle>
-                <CardDescription>
-                  Manage uploaded photos and videos from the event
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <Image className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">Media uploads coming soon</p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Participants will be able to upload photos after the event ends.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <EventMediaUpload eventId={id!} isOrganizer={true} />
           </TabsContent>
 
           <TabsContent value="sponsors">
