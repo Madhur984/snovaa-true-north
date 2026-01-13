@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, MapPin, Clock, Users, ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
+import { ParticipantQRCode } from "@/components/ParticipantQRCode";
 
 interface Event {
   id: string;
@@ -352,6 +353,16 @@ const EventDetail = () => {
                   )}
                 </CardContent>
               </Card>
+            )}
+
+            {/* Participant QR Code - Show when registered */}
+            {!isOrganizer && profile && ["registered", "confirmed"].includes(participationStatus) && (
+              <ParticipantQRCode
+                eventId={event.id}
+                participantId={profile.id}
+                eventTitle={event.title}
+                participantName={profile.display_name}
+              />
             )}
 
             {isOrganizer && (
