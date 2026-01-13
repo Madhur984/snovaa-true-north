@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Search, Check, X, QrCode, Users } from "lucide-react";
+import { ArrowLeft, Search, Check, X, Users } from "lucide-react";
+import { QRScanner } from "@/components/QRScanner";
 
 interface Participant {
   id: string;
@@ -81,9 +82,20 @@ const CheckIn = () => {
     setLoading(false);
   };
 
-  const handleCheckIn = async (participantId: string) => {
+  const handleCheckIn = useCallback(async (participantId: string) => {
     if (!profile) return;
     setProcessingId(participantId);
+
+    // Check if already checked in
+    const participant = participants.find(p => p.profile_id === participantId);
+    if (participant?.latest_action === "attended") {
+      toast({
+        title: "Already checked in",
+        description: `${participant.display_name} is already checked in.`,
+      });
+      setProcessingId(null);
+      return;
+    }
 
     const { error } = await supabase.from("participation_ledger").insert({
       event_id: id,
@@ -99,9 +111,10 @@ const CheckIn = () => {
         variant: "destructive",
       });
     } else {
+      const participantName = participants.find(p => p.profile_id === participantId)?.display_name || "Participant";
       toast({
         title: "Checked in!",
-        description: "Attendance recorded in the ledger.",
+        description: `${participantName}'s attendance recorded in the ledger.`,
       });
       // Update local state
       setParticipants((prev) =>
@@ -111,7 +124,7 @@ const CheckIn = () => {
       );
     }
     setProcessingId(null);
-  };
+  }, [id, profile, participants, toast]);
 
   const filteredParticipants = participants.filter((p) =>
     p.display_name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -211,23 +224,12 @@ const CheckIn = () => {
           </Card>
         </div>
 
-        {/* QR Scanner Placeholder */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="font-serif flex items-center gap-2">
-              <QrCode className="w-5 h-5" />
-              QR Check-In
-            </CardTitle>
-            <CardDescription>
-              Scan participant QR codes for instant check-in (coming soon)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-32 rounded-lg bg-muted flex items-center justify-center">
-              <span className="text-muted-foreground">QR Scanner</span>
-            </div>
-          </CardContent>
-        </Card>
+        {/* QR Scanner */}
+        <QRScanner
+          eventId={id || ""}
+          onScan={handleCheckIn}
+          isProcessing={!!processingId}
+        />
 
         {/* Manual Check-In */}
         <Card>
