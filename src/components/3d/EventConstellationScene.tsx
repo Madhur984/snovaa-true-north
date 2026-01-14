@@ -1,6 +1,6 @@
 import { useRef, useMemo, useState, useCallback, Suspense } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, Trail, Line, Sparkles, MeshDistortMaterial } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Float, Trail, Line, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
 
 // Easing functions for smooth animations
@@ -417,164 +417,206 @@ function ConnectionLines({ nodes }: { nodes: Array<{ position: [number, number, 
   );
 }
 
-// Floating calendar icon made of geometry
-function CalendarIcon({ position, mousePos }: { 
+// Animated orbital ring system - replaces static calendar
+function OrbitalRings({ position, mousePos }: { 
   position: [number, number, number];
   mousePos: React.MutableRefObject<{ x: number; y: number }>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+  const ring1Ref = useRef<THREE.Mesh>(null);
+  const ring2Ref = useRef<THREE.Mesh>(null);
+  const ring3Ref = useRef<THREE.Mesh>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
   
   useFrame((state) => {
     if (!groupRef.current) return;
     const time = state.clock.elapsedTime;
     
-    // Look at mouse position slightly
-    groupRef.current.rotation.y = mousePos.current.x * 0.3;
-    groupRef.current.rotation.x = -mousePos.current.y * 0.2;
+    // React to mouse
+    groupRef.current.rotation.y = mousePos.current.x * 0.4 + time * 0.1;
+    groupRef.current.rotation.x = -mousePos.current.y * 0.3;
+    groupRef.current.position.y = position[1] + Math.sin(time * 0.5) * 0.15;
     
-    // Gentle float
-    groupRef.current.position.y = position[1] + Math.sin(time * 0.5) * 0.2;
+    // Animate rings
+    if (ring1Ref.current) {
+      ring1Ref.current.rotation.x = time * 0.5;
+      ring1Ref.current.rotation.z = time * 0.3;
+    }
+    if (ring2Ref.current) {
+      ring2Ref.current.rotation.y = time * 0.4;
+      ring2Ref.current.rotation.x = time * 0.2;
+    }
+    if (ring3Ref.current) {
+      ring3Ref.current.rotation.z = time * 0.6;
+      ring3Ref.current.rotation.y = time * 0.25;
+    }
+    
+    // Pulsing core
+    if (coreRef.current) {
+      const pulse = 1 + Math.sin(time * 2) * 0.15;
+      coreRef.current.scale.setScalar(pulse * 0.3);
+    }
   });
 
   return (
-    <Float speed={1} rotationIntensity={0.2} floatIntensity={0.3}>
-      <group ref={groupRef} position={position} scale={0.6}>
-        {/* Calendar body */}
-        <mesh>
-          <boxGeometry args={[1.5, 1.8, 0.1]} />
+    <Float speed={1.2} rotationIntensity={0.1} floatIntensity={0.2}>
+      <group ref={groupRef} position={position}>
+        {/* Glowing core */}
+        <mesh ref={coreRef}>
+          <icosahedronGeometry args={[1, 2]} />
           <meshStandardMaterial 
-            color="#3D7A7A" 
-            metalness={0.6} 
+            color="#5599AA"
+            emissive="#5599AA"
+            emissiveIntensity={1.5}
+            metalness={0.8}
             roughness={0.2}
             transparent
             opacity={0.9}
           />
         </mesh>
-        {/* Calendar top bar */}
-        <mesh position={[0, 0.7, 0.06]}>
-          <boxGeometry args={[1.5, 0.4, 0.1]} />
+        
+        {/* Orbital ring 1 */}
+        <mesh ref={ring1Ref}>
+          <torusGeometry args={[0.6, 0.015, 16, 64]} />
           <meshStandardMaterial 
-            color="#5599AA" 
-            metalness={0.8} 
+            color="#88CCCC"
+            emissive="#88CCCC"
+            emissiveIntensity={0.8}
+            metalness={0.9}
             roughness={0.1}
           />
         </mesh>
-        {/* Calendar rings */}
-        {[-0.4, 0.4].map((x, i) => (
-          <mesh key={i} position={[x, 0.95, 0]}>
-            <torusGeometry args={[0.08, 0.02, 8, 16]} />
-            <meshStandardMaterial color="#88CCCC" metalness={0.9} roughness={0.1} />
-          </mesh>
-        ))}
-        {/* Grid dots */}
-        {[...Array(9)].map((_, i) => (
-          <mesh 
-            key={i} 
-            position={[
-              ((i % 3) - 1) * 0.35, 
-              -0.1 - Math.floor(i / 3) * 0.35, 
-              0.08
-            ]}
-          >
-            <sphereGeometry args={[0.06, 8, 8]} />
-            <meshStandardMaterial 
-              color="#88CCCC" 
-              emissive="#5599AA"
-              emissiveIntensity={0.5}
-            />
-          </mesh>
+        
+        {/* Orbital ring 2 */}
+        <mesh ref={ring2Ref} rotation={[Math.PI / 3, 0, 0]}>
+          <torusGeometry args={[0.8, 0.012, 16, 64]} />
+          <meshStandardMaterial 
+            color="#5599AA"
+            emissive="#5599AA"
+            emissiveIntensity={0.6}
+            metalness={0.9}
+            roughness={0.1}
+            transparent
+            opacity={0.8}
+          />
+        </mesh>
+        
+        {/* Orbital ring 3 */}
+        <mesh ref={ring3Ref} rotation={[Math.PI / 2, Math.PI / 4, 0]}>
+          <torusGeometry args={[1, 0.01, 16, 64]} />
+          <meshStandardMaterial 
+            color="#3D7A7A"
+            emissive="#5599AA"
+            emissiveIntensity={0.4}
+            metalness={0.9}
+            roughness={0.1}
+            transparent
+            opacity={0.6}
+          />
+        </mesh>
+        
+        {/* Orbiting dots */}
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <OrbitingDot key={i} index={i} />
         ))}
       </group>
     </Float>
   );
 }
 
-// Users icon made of geometry
-function UsersIcon({ position, mousePos }: { 
-  position: [number, number, number];
+// Small orbiting dot for the orbital system
+function OrbitingDot({ index }: { index: number }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const radius = 0.5 + (index % 3) * 0.25;
+  const speed = 1 + index * 0.3;
+  const offset = (index / 6) * Math.PI * 2;
+  
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const time = state.clock.elapsedTime * speed + offset;
+    
+    meshRef.current.position.x = Math.cos(time) * radius;
+    meshRef.current.position.y = Math.sin(time * 1.3) * radius * 0.5;
+    meshRef.current.position.z = Math.sin(time) * radius * 0.8;
+    
+    const pulse = 1 + Math.sin(time * 3) * 0.3;
+    meshRef.current.scale.setScalar(0.03 * pulse);
+  });
+  
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[1, 8, 8]} />
+      <meshStandardMaterial 
+        color="#88CCCC"
+        emissive="#88CCCC"
+        emissiveIntensity={2}
+      />
+    </mesh>
+  );
+}
+
+// DNA-like helix animation
+function HelixStructure({ mousePos }: { 
   mousePos: React.MutableRefObject<{ x: number; y: number }>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  
+  const helixNodes = useMemo(() => {
+    const nodes: Array<{ offset: number; radius: number; strand: number }> = [];
+    for (let i = 0; i < 24; i++) {
+      nodes.push({ offset: i * 0.3, radius: 0.08, strand: 0 });
+      nodes.push({ offset: i * 0.3 + Math.PI, radius: 0.08, strand: 1 });
+    }
+    return nodes;
+  }, []);
+
   useFrame((state) => {
     if (!groupRef.current) return;
     const time = state.clock.elapsedTime;
     
-    groupRef.current.rotation.y = mousePos.current.x * 0.2 + Math.sin(time * 0.3) * 0.1;
-    groupRef.current.rotation.x = -mousePos.current.y * 0.15;
-    groupRef.current.position.y = position[1] + Math.sin(time * 0.6 + 1) * 0.15;
+    groupRef.current.rotation.y = time * 0.2 + mousePos.current.x * 0.3;
+    groupRef.current.rotation.x = mousePos.current.y * 0.1;
+    groupRef.current.position.y = Math.sin(time * 0.4) * 0.2;
   });
 
   return (
-    <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.4}>
-      <group ref={groupRef} position={position} scale={0.5}>
-        {/* Main person */}
-        <group position={[0, 0, 0.3]}>
-          <mesh position={[0, 0.5, 0]}>
-            <sphereGeometry args={[0.4, 16, 16]} />
-            <meshStandardMaterial 
-              color="#5599AA" 
-              metalness={0.5} 
-              roughness={0.3}
-            />
-          </mesh>
-          <mesh position={[0, -0.3, 0]}>
-            <capsuleGeometry args={[0.35, 0.6, 8, 16]} />
-            <meshStandardMaterial 
-              color="#3D7A7A" 
-              metalness={0.5} 
-              roughness={0.3}
-            />
-          </mesh>
-        </group>
-        {/* Left person */}
-        <group position={[-0.7, -0.15, -0.2]} scale={0.8}>
-          <mesh position={[0, 0.5, 0]}>
-            <sphereGeometry args={[0.4, 16, 16]} />
-            <meshStandardMaterial 
-              color="#88CCCC" 
-              metalness={0.5} 
-              roughness={0.3}
-              transparent
-              opacity={0.8}
-            />
-          </mesh>
-          <mesh position={[0, -0.3, 0]}>
-            <capsuleGeometry args={[0.35, 0.6, 8, 16]} />
-            <meshStandardMaterial 
-              color="#5599AA" 
-              metalness={0.5} 
-              roughness={0.3}
-              transparent
-              opacity={0.8}
-            />
-          </mesh>
-        </group>
-        {/* Right person */}
-        <group position={[0.7, -0.15, -0.2]} scale={0.8}>
-          <mesh position={[0, 0.5, 0]}>
-            <sphereGeometry args={[0.4, 16, 16]} />
-            <meshStandardMaterial 
-              color="#88CCCC" 
-              metalness={0.5} 
-              roughness={0.3}
-              transparent
-              opacity={0.8}
-            />
-          </mesh>
-          <mesh position={[0, -0.3, 0]}>
-            <capsuleGeometry args={[0.35, 0.6, 8, 16]} />
-            <meshStandardMaterial 
-              color="#5599AA" 
-              metalness={0.5} 
-              roughness={0.3}
-              transparent
-              opacity={0.8}
-            />
-          </mesh>
-        </group>
-      </group>
-    </Float>
+    <group ref={groupRef} position={[0, 0, -3]} scale={0.8}>
+      {helixNodes.map((node, i) => (
+        <HelixNode key={i} index={i} offset={node.offset} strand={node.strand} />
+      ))}
+    </group>
+  );
+}
+
+function HelixNode({ index, offset, strand }: { index: number; offset: number; strand: number }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const baseY = (index / 2 - 6) * 0.3;
+  
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const time = state.clock.elapsedTime;
+    
+    const angle = time * 0.8 + offset;
+    const radius = 1.2;
+    
+    meshRef.current.position.x = Math.cos(angle) * radius;
+    meshRef.current.position.z = Math.sin(angle) * radius;
+    meshRef.current.position.y = baseY;
+    
+    const pulse = 1 + Math.sin(time * 2 + index * 0.2) * 0.2;
+    meshRef.current.scale.setScalar(0.06 * pulse);
+  });
+  
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[1, 12, 12]} />
+      <meshStandardMaterial 
+        color={strand === 0 ? "#5599AA" : "#88CCCC"}
+        emissive={strand === 0 ? "#5599AA" : "#88CCCC"}
+        emissiveIntensity={1.2}
+        metalness={0.6}
+        roughness={0.3}
+      />
+    </mesh>
   );
 }
 
@@ -728,9 +770,12 @@ function Scene() {
       {/* Connection lines */}
       <ConnectionLines nodes={nodes} />
 
-      {/* Thematic icons */}
-      <CalendarIcon position={[-1.5, 0.5, 1]} mousePos={mousePos} />
-      <UsersIcon position={[1.5, -0.5, 1]} mousePos={mousePos} />
+      {/* Animated orbital systems */}
+      <OrbitalRings position={[-2.5, 0.8, 0.5]} mousePos={mousePos} />
+      <OrbitalRings position={[2.5, -0.3, 0.5]} mousePos={mousePos} />
+
+      {/* DNA helix in background */}
+      <HelixStructure mousePos={mousePos} />
 
       {/* Orbiting particles with trails */}
       <OrbitingParticle radius={4} speed={0.3} offset={0} mousePos={mousePos} />
@@ -739,7 +784,7 @@ function Scene() {
       <OrbitingParticle radius={4.5} speed={0.2} offset={Math.PI * 1.1} mousePos={mousePos} />
 
       {/* Ambient particle field */}
-      <AmbientParticles count={120} mousePos={mousePos} />
+      <AmbientParticles count={150} mousePos={mousePos} />
 
       {/* Periodic energy waves from center */}
       <EnergyWave delay={0} />
@@ -748,12 +793,12 @@ function Scene() {
 
       {/* Sparkles for ambient glow */}
       <Sparkles
-        count={50}
+        count={60}
         size={1.5}
-        scale={[12, 8, 6]}
-        speed={0.3}
+        scale={[14, 10, 8]}
+        speed={0.4}
         color="#5599AA"
-        opacity={0.4}
+        opacity={0.5}
       />
     </>
   );
