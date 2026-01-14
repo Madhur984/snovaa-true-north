@@ -1,89 +1,79 @@
-// Silent Luxury Motion Variants
-// Core animation patterns for Framer Motion
+// Silent Luxury Motion System — Variants
+// Exact schema specification
 
-import { Variants } from "framer-motion";
+import { Variants, Transition } from "framer-motion";
 import { motionTokens } from "./tokens";
 
-// Fade up - The signature luxury reveal
+// Base transition factory
+const createTransition = (duration: keyof typeof motionTokens.duration): Transition => ({
+  duration: motionTokens.duration[duration],
+  ease: motionTokens.easing,
+});
+
+// ═══════════════════════════════════════════════════════════════
+// CORE VARIANTS
+// ═══════════════════════════════════════════════════════════════
+
+// fadeUp - Primary reveal animation
 export const fadeUp: Variants = {
   hidden: {
     opacity: 0,
-    y: motionTokens.offset.subtle,
+    y: motionTokens.offsetPx,
   },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: motionTokens.duration.section,
-      ease: motionTokens.easing,
-    },
+    transition: createTransition("section"),
   },
 };
 
-// Fade only - Ultra minimal, no movement
+// fadeOnly - Ultra minimal, no movement
 export const fadeOnly: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      duration: motionTokens.duration.body,
-      ease: motionTokens.easing,
-    },
+    transition: createTransition("body"),
   },
 };
 
-// Hero variant - Slower, more dramatic
+// fadeUpHero - Slower, more dramatic for hero sections
 export const fadeUpHero: Variants = {
   hidden: {
     opacity: 0,
-    y: motionTokens.offset.subtle,
+    y: motionTokens.offsetPx,
   },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: motionTokens.duration.hero,
-      ease: motionTokens.easing,
-    },
+    transition: createTransition("hero"),
   },
 };
 
-// Route/Page transitions
+// ═══════════════════════════════════════════════════════════════
+// PAGE TRANSITIONS
+// ═══════════════════════════════════════════════════════════════
+
 export const routeTransition: Variants = {
-  initial: { opacity: 0 },
+  initial: { 
+    opacity: 0,
+    y: motionTokens.offsetPx,
+  },
   animate: {
     opacity: 1,
-    transition: {
-      duration: motionTokens.duration.section,
-      ease: motionTokens.easing,
-    },
+    y: 0,
+    transition: createTransition("section"),
   },
   exit: {
     opacity: 0,
-    transition: {
-      duration: motionTokens.duration.ui,
-      ease: motionTokens.easing,
-    },
+    transition: createTransition("ui"),
   },
 };
 
-// Dashboard card - No lift, no scale, just fade
-export const dashboardCard: Variants = {
-  hidden: {
-    opacity: 0,
-    y: motionTokens.offset.subtle,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: motionTokens.duration.body,
-      ease: motionTokens.easing,
-    },
-  },
-};
+// ═══════════════════════════════════════════════════════════════
+// CONTAINER VARIANTS (Stagger Children)
+// ═══════════════════════════════════════════════════════════════
 
-// Feed container - For staggered children
+// Feed/List container - soft stagger
 export const feedContainer: Variants = {
   hidden: {},
   visible: {
@@ -93,61 +83,13 @@ export const feedContainer: Variants = {
   },
 };
 
-// Editorial container - Wider stagger for luxury layouts
+// Editorial container - wider stagger for luxury layouts
 export const editorialContainer: Variants = {
   hidden: {},
   visible: {
     transition: {
       staggerChildren: motionTokens.stagger.editorial,
     },
-  },
-};
-
-// Feed item - Individual list items
-export const feedItem: Variants = {
-  hidden: {
-    opacity: 0,
-    y: motionTokens.offset.subtle,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: motionTokens.duration.body,
-      ease: motionTokens.easing,
-    },
-  },
-};
-
-// Hover states - Ultra minimal
-export const hoverOpacity = {
-  whileHover: {
-    opacity: 0.95,
-    transition: {
-      duration: motionTokens.duration.ui,
-      ease: motionTokens.easing,
-    },
-  },
-};
-
-export const hoverSubtle = {
-  whileHover: {
-    opacity: 0.9,
-    y: 1,
-    transition: {
-      duration: motionTokens.duration.ui,
-      ease: motionTokens.easing,
-    },
-  },
-};
-
-// Button states
-export const buttonMotion = {
-  whileHover: { opacity: 0.85 },
-  whileTap: { opacity: 0.75 },
-  transition: {
-    duration: motionTokens.duration.ui,
-    ease: motionTokens.easing,
   },
 };
 
@@ -162,18 +104,95 @@ export const statsContainer: Variants = {
   },
 };
 
-// Stat card
-export const statCard: Variants = {
+// Navigation container
+export const navContainer: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: motionTokens.stagger.soft,
+    },
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ITEM VARIANTS (Children of Containers)
+// ═══════════════════════════════════════════════════════════════
+
+// Feed item - for lists
+export const feedItem: Variants = {
   hidden: {
     opacity: 0,
-    y: motionTokens.offset.subtle,
+    y: motionTokens.offsetPx,
   },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: motionTokens.duration.body,
-      ease: motionTokens.easing,
-    },
+    transition: createTransition("body"),
   },
+};
+
+// Stat card - dashboard widgets
+export const statCard: Variants = {
+  hidden: {
+    opacity: 0,
+    y: motionTokens.offsetPx,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: createTransition("body"),
+  },
+};
+
+// Dashboard card - NO lift, NO scale, just fade
+export const dashboardCard: Variants = {
+  hidden: {
+    opacity: 0,
+    y: motionTokens.offsetPx,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: createTransition("body"),
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// HOVER STATES (Ultra minimal - NO scale, shadow, glow)
+// ═══════════════════════════════════════════════════════════════
+
+// Text hover - subtle opacity + minimal translateY
+export const hoverText = {
+  whileHover: {
+    opacity: motionTokens.hover.text.opacity,
+    y: motionTokens.hover.text.translateY,
+    transition: createTransition("ui"),
+  },
+};
+
+// Generic opacity hover
+export const hoverOpacity = {
+  whileHover: {
+    opacity: 0.95,
+    transition: createTransition("ui"),
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// BUTTON MOTION
+// ═══════════════════════════════════════════════════════════════
+
+export const buttonMotion = {
+  whileHover: { opacity: motionTokens.buttons.hover.opacity },
+  whileTap: { opacity: motionTokens.buttons.active.opacity },
+  transition: createTransition("ui"),
+};
+
+// ═══════════════════════════════════════════════════════════════
+// SCROLL REVEAL VIEWPORT SETTINGS
+// ═══════════════════════════════════════════════════════════════
+
+export const scrollViewport = {
+  once: motionTokens.scrollReveal.once,
+  margin: motionTokens.scrollReveal.viewportMargin,
 };

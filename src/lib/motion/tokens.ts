@@ -1,43 +1,71 @@
-// Silent Luxury Motion Tokens - Source of Truth
-// Inspired by Prada's editorial restraint
+// Silent Luxury Motion System — Tokens
+// Exact schema specification
 
 export const motionTokens = {
-  // Easing: calm, confident, no bounce
+  // Easing curve - calm, confident, no bounce
   easing: [0.4, 0, 0.2, 1] as const,
-  
-  // Durations in seconds
-  duration: {
-    hero: 0.9,      // Major reveals, page entries
-    section: 0.7,   // Section-level animations
-    body: 0.5,      // Content reveals
-    ui: 0.35,       // Micro-interactions
-  },
+  easingCSS: "cubic-bezier(0.4, 0, 0.2, 1)",
   
   // Offset in pixels - subtle, not dramatic
-  offset: {
-    subtle: 4,      // Standard fade-up distance
+  offsetPx: 4,
+  
+  // Durations in milliseconds
+  durationsMs: {
+    hero: 900,
+    section: 700,
+    body: 500,
+    ui: 350,
   },
   
-  // Stagger delays for lists
+  // Durations in seconds (for Framer Motion)
+  duration: {
+    hero: 0.9,
+    section: 0.7,
+    body: 0.5,
+    ui: 0.35,
+  },
+  
+  // Stagger delays
+  staggerMs: {
+    soft: 100,
+    editorial: 150,
+  },
+  
   stagger: {
-    soft: 0.1,      // Tight stagger for feeds
-    editorial: 0.15, // Wider for editorial layouts
+    soft: 0.1,
+    editorial: 0.15,
   },
   
-  // Viewport settings
-  viewport: {
-    margin: "-80px",
+  // Scroll reveal settings
+  scrollReveal: {
+    enabled: true,
     once: true,
+    viewportMargin: "-80px",
+  },
+  
+  // Hover constraints
+  hover: {
+    text: {
+      opacity: 0.9,
+      translateY: 1,
+    },
+    link: {
+      underline: true,
+    },
+    disallowed: ["scale", "shadow", "glow"] as const,
+  },
+  
+  // Button states
+  buttons: {
+    hover: { opacity: 0.85 },
+    active: { opacity: 0.75 },
+  },
+  
+  // Performance targets
+  performance: {
+    cssFirst: true,
+    targetFPS: 60,
   },
 } as const;
 
-// CSS-compatible easing string
-export const easingCSS = "cubic-bezier(0.4, 0, 0.2, 1)";
-
-// Duration in milliseconds for CSS
-export const durationMS = {
-  hero: 900,
-  section: 700,
-  body: 500,
-  ui: 350,
-} as const;
+export type MotionTokens = typeof motionTokens;
