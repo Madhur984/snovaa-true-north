@@ -13,6 +13,7 @@ export function PageTransition({ children }: PageTransitionProps) {
       initial="initial"
       animate="animate"
       exit="exit"
+      style={{ willChange: "opacity, transform, filter" }}
     >
       {children}
     </motion.div>

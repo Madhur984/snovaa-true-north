@@ -1,9 +1,85 @@
-import { useRef, useMemo, useState, useCallback } from "react";
+import { useRef, useMemo, useState, useCallback, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, Trail, Line } from "@react-three/drei";
+import { Float, Trail, Line, Sparkles, MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
-// Click ripple effect - expanding ring that fades out
+// Easing functions for smooth animations
+const easeOutExpo = (t: number) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+const easeOutElastic = (t: number) => {
+  const c4 = (2 * Math.PI) / 3;
+  return t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+};
+
+// Glowing halo effect around nodes
+function GlowHalo({ position, color, scale }: { 
+  position: [number, number, number]; 
+  color: string;
+  scale: number;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const time = state.clock.elapsedTime;
+    const pulse = 1 + Math.sin(time * 2) * 0.15;
+    meshRef.current.scale.setScalar(scale * pulse * 2.5);
+    // @ts-ignore
+    if (meshRef.current.material) {
+      (meshRef.current.material as THREE.MeshBasicMaterial).opacity = 0.15 + Math.sin(time * 1.5) * 0.05;
+    }
+  });
+
+  return (
+    <mesh ref={meshRef} position={position}>
+      <sphereGeometry args={[1, 16, 16]} />
+      <meshBasicMaterial
+        color={color}
+        transparent
+        opacity={0.15}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
+
+// Energy wave that pulses outward periodically
+function EnergyWave({ delay = 0 }: { delay?: number }) {
+  const ringRef = useRef<THREE.Mesh>(null);
+  const startTime = useRef(Date.now() + delay * 1000);
+  const duration = 4000;
+
+  useFrame(() => {
+    if (!ringRef.current) return;
+    
+    const elapsed = (Date.now() - startTime.current) % duration;
+    const progress = elapsed / duration;
+    const easedProgress = easeOutExpo(progress);
+    
+    const scale = 1 + easedProgress * 8;
+    ringRef.current.scale.setScalar(scale);
+    
+    // @ts-ignore
+    if (ringRef.current.material) {
+      (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - progress) * 0.2;
+    }
+  });
+
+  return (
+    <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
+      <torusGeometry args={[1, 0.02, 8, 64]} />
+      <meshBasicMaterial
+        color="#5599AA"
+        transparent
+        opacity={0.2}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
+
+// Click ripple effect - expanding ring that fades out with enhanced visuals
 function ClickRipple({ 
   position, 
   color, 
@@ -14,22 +90,36 @@ function ClickRipple({
   onComplete: () => void;
 }) {
   const ringRef = useRef<THREE.Mesh>(null);
+  const ring2Ref = useRef<THREE.Mesh>(null);
   const startTime = useRef(Date.now());
-  const duration = 1200; // ms
+  const duration = 1400;
 
   useFrame(() => {
-    if (!ringRef.current) return;
+    if (!ringRef.current || !ring2Ref.current) return;
     
     const elapsed = Date.now() - startTime.current;
     const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeOutExpo(progress);
     
-    // Expand and fade
-    const scale = 0.5 + progress * 3;
-    ringRef.current.scale.setScalar(scale);
+    // Primary ring
+    const scale1 = 0.3 + easedProgress * 4;
+    ringRef.current.scale.setScalar(scale1);
+    ringRef.current.rotation.z = progress * Math.PI * 0.5;
     
-    // @ts-ignore - accessing material opacity
+    // Secondary ring (delayed)
+    const progress2 = Math.max(0, (elapsed - 100) / duration);
+    const easedProgress2 = easeOutExpo(Math.min(progress2, 1));
+    const scale2 = 0.2 + easedProgress2 * 3;
+    ring2Ref.current.scale.setScalar(scale2);
+    ring2Ref.current.rotation.z = -progress2 * Math.PI * 0.3;
+    
+    // @ts-ignore
     if (ringRef.current.material) {
-      (ringRef.current.material as THREE.MeshStandardMaterial).opacity = 1 - progress;
+      (ringRef.current.material as THREE.MeshStandardMaterial).opacity = (1 - progress) * 1.5;
+    }
+    // @ts-ignore
+    if (ring2Ref.current.material) {
+      (ring2Ref.current.material as THREE.MeshStandardMaterial).opacity = (1 - progress2) * 0.8;
     }
     
     if (progress >= 1) {
@@ -38,17 +128,30 @@ function ClickRipple({
   });
 
   return (
-    <mesh ref={ringRef} position={position} rotation={[Math.PI / 2, 0, 0]}>
-      <torusGeometry args={[1, 0.03, 8, 64]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={2}
-        transparent
-        opacity={1}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
+    <group position={position}>
+      <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[1, 0.04, 8, 64]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={3}
+          transparent
+          opacity={1}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      <mesh ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[1.2, 0.02, 8, 48]} />
+        <meshStandardMaterial
+          color="#ffffff"
+          emissive={color}
+          emissiveIntensity={1.5}
+          transparent
+          opacity={0.8}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
   );
 }
 
@@ -66,31 +169,40 @@ function BurstParticle({
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const startTime = useRef(Date.now());
-  const duration = 1500;
+  const duration = 1800;
   const pos = useRef([...startPosition]);
+  const rotation = useRef([Math.random() * Math.PI, Math.random() * Math.PI]);
 
   useFrame(() => {
     if (!meshRef.current) return;
     
     const elapsed = Date.now() - startTime.current;
     const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeOutExpo(progress);
     
-    // Physics: position + velocity * time + gravity
-    const gravity = -2;
-    const t = progress * 1.5;
-    pos.current[0] = startPosition[0] + velocity[0] * t;
-    pos.current[1] = startPosition[1] + velocity[1] * t + 0.5 * gravity * t * t;
-    pos.current[2] = startPosition[2] + velocity[2] * t;
+    // Physics with air resistance
+    const gravity = -2.5;
+    const drag = 0.98;
+    const t = easedProgress * 2;
+    pos.current[0] = startPosition[0] + velocity[0] * t * drag;
+    pos.current[1] = startPosition[1] + velocity[1] * t * drag + 0.5 * gravity * t * t;
+    pos.current[2] = startPosition[2] + velocity[2] * t * drag;
     
     meshRef.current.position.set(pos.current[0], pos.current[1], pos.current[2]);
     
-    // Scale down and fade
-    const scale = (1 - progress) * 0.15;
-    meshRef.current.scale.setScalar(scale);
+    // Spin while falling
+    meshRef.current.rotation.x = rotation.current[0] + progress * 8;
+    meshRef.current.rotation.y = rotation.current[1] + progress * 6;
+    
+    // Scale with bounce
+    const bounceScale = progress < 0.2 
+      ? easeOutElastic(progress * 5) * 0.2
+      : (1 - progress) * 0.18;
+    meshRef.current.scale.setScalar(bounceScale);
     
     // @ts-ignore
     if (meshRef.current.material) {
-      (meshRef.current.material as THREE.MeshStandardMaterial).opacity = 1 - progress * 0.8;
+      (meshRef.current.material as THREE.MeshStandardMaterial).opacity = 1 - progress * 0.7;
     }
     
     if (progress >= 1) {
@@ -100,11 +212,11 @@ function BurstParticle({
 
   return (
     <mesh ref={meshRef} position={startPosition}>
-      <sphereGeometry args={[1, 8, 8]} />
+      <icosahedronGeometry args={[1, 0]} />
       <meshStandardMaterial
         color={color}
         emissive={color}
-        emissiveIntensity={1.5}
+        emissiveIntensity={2}
         transparent
         opacity={1}
       />
@@ -583,6 +695,11 @@ function Scene() {
       <directionalLight position={[-5, 5, 5]} intensity={0.4} color="#88CCCC" />
       <pointLight position={[0, 0, 5]} intensity={0.3} color="#5599AA" />
 
+      {/* Glow halos behind nodes */}
+      {nodes.map((node, i) => (
+        <GlowHalo key={`halo-${i}`} position={node.position} color={node.color} scale={node.scale} />
+      ))}
+
       {/* Event nodes with click handler */}
       {nodes.map((node, i) => (
         <EventNode key={i} {...node} mousePos={mousePos} onNodeClick={handleNodeClick} />
@@ -619,9 +736,25 @@ function Scene() {
       <OrbitingParticle radius={4} speed={0.3} offset={0} mousePos={mousePos} />
       <OrbitingParticle radius={5} speed={0.25} offset={Math.PI * 0.7} mousePos={mousePos} />
       <OrbitingParticle radius={3.5} speed={0.35} offset={Math.PI * 1.4} mousePos={mousePos} />
+      <OrbitingParticle radius={4.5} speed={0.2} offset={Math.PI * 1.1} mousePos={mousePos} />
 
       {/* Ambient particle field */}
-      <AmbientParticles count={100} mousePos={mousePos} />
+      <AmbientParticles count={120} mousePos={mousePos} />
+
+      {/* Periodic energy waves from center */}
+      <EnergyWave delay={0} />
+      <EnergyWave delay={1.5} />
+      <EnergyWave delay={3} />
+
+      {/* Sparkles for ambient glow */}
+      <Sparkles
+        count={50}
+        size={1.5}
+        scale={[12, 8, 6]}
+        speed={0.3}
+        color="#5599AA"
+        opacity={0.4}
+      />
     </>
   );
 }
@@ -635,7 +768,9 @@ export function EventConstellationScene() {
         gl={{ antialias: true, alpha: true }}
         style={{ pointerEvents: "auto", cursor: "default" }}
       >
-        <Scene />
+        <Suspense fallback={null}>
+          <Scene />
+        </Suspense>
       </Canvas>
     </div>
   );
