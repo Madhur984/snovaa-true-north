@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -13,6 +14,16 @@ import {
 } from "lucide-react";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { AnalyticsCharts } from "@/components/admin/AnalyticsCharts";
+import { 
+  fadeUp, 
+  fadeOnly, 
+  statsContainer, 
+  statCard, 
+  feedContainer, 
+  feedItem,
+  scrollViewport 
+} from "@/lib/motion";
+import { useParallax } from "@/hooks/use-parallax";
 import adminHero from "@/assets/admin-hero.jpg";
 
 interface SystemStats {
@@ -47,11 +58,10 @@ const AdminDashboard = () => {
   const [recentEvents, setRecentEvents] = useState<RecentEvent[]>([]);
   const [topClubs, setTopClubs] = useState<TopClub[]>([]);
   const [loading, setLoading] = useState(true);
+  const parallaxOffset = useParallax(0.3);
 
   useEffect(() => {
     if (profile?.role === "organizer") {
-      // For now, allow organizers to see admin dashboard
-      // In production, check for admin role
       fetchStats();
       fetchRecentEvents();
       fetchTopClubs();
@@ -130,10 +140,15 @@ const AdminDashboard = () => {
     return (
       <Layout>
         <div className="container max-w-6xl py-12">
-          <div className="animate-pulse space-y-4">
+          <motion.div 
+            variants={fadeOnly}
+            initial="hidden"
+            animate="visible"
+            className="space-y-4"
+          >
             <div className="h-8 bg-muted rounded w-1/3"></div>
             <div className="h-4 bg-muted rounded w-1/2"></div>
-          </div>
+          </motion.div>
         </div>
       </Layout>
     );
@@ -142,137 +157,182 @@ const AdminDashboard = () => {
   if (profile?.role !== "organizer") {
     return (
       <Layout>
-        <div className="container max-w-6xl py-12 text-center">
-          <Shield className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-          <h1 className="font-serif text-2xl font-medium text-display mb-2">Access Denied</h1>
-          <p className="text-muted-foreground mb-6">You don't have permission to view this page.</p>
+        <motion.div 
+          className="container max-w-6xl py-12 text-center"
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+        >
+          <Shield className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1} />
+          <h1 className="font-serif text-2xl font-light text-display mb-2">Access Denied</h1>
+          <p className="text-muted-foreground mb-6 font-light">You don't have permission to view this page.</p>
           <Button asChild variant="outline">
             <Link to="/dashboard">Go to Dashboard</Link>
           </Button>
-        </div>
+        </motion.div>
       </Layout>
     );
   }
 
   return (
     <Layout>
-      {/* Hero Background */}
-      <div className="fixed inset-0 -z-10">
+      {/* Hero Background with Parallax */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
         <img 
           src={adminHero} 
           alt="" 
-          className="w-full h-full object-cover opacity-20"
+          className="w-full h-[120%] object-cover opacity-20"
+          style={{ transform: `translateY(${parallaxOffset}px) scale(1.05)` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
       </div>
 
-      <div className="container max-w-6xl py-12">
+      <motion.div 
+        className="container max-w-6xl py-12"
+        variants={fadeOnly}
+        initial="hidden"
+        animate="visible"
+      >
         {/* Header */}
-        <div className="mb-8">
+        <motion.div 
+          className="mb-8"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+        >
           <Badge variant="secondary" className="mb-4">
             Admin Analytics
           </Badge>
-          <h1 className="font-serif text-3xl font-medium text-display mb-2">System Overview</h1>
-          <p className="text-body">Monitor platform health and participation metrics.</p>
-        </div>
+          <h1 className="font-serif text-3xl font-light text-display mb-2">System Overview</h1>
+          <p className="text-body font-light">Monitor platform health and participation metrics.</p>
+        </motion.div>
 
         {/* Main Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Total Users
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-serif font-medium text-display">{stats?.totalUsers}</p>
-            </CardContent>
-          </Card>
+        <motion.div 
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+          variants={statsContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+        >
+          <motion.div variants={statCard}>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Total Users
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-serif font-light text-display">{stats?.totalUsers}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2">
-                <Building className="w-4 h-4" />
-                Clubs
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-serif font-medium text-display">{stats?.totalClubs}</p>
-            </CardContent>
-          </Card>
+          <motion.div variants={statCard}>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription className="flex items-center gap-2">
+                  <Building className="w-4 h-4" />
+                  Clubs
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-serif font-light text-display">{stats?.totalClubs}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Total Events
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-serif font-medium text-display">{stats?.totalEvents}</p>
-            </CardContent>
-          </Card>
+          <motion.div variants={statCard}>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Total Events
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-serif font-light text-display">{stats?.totalEvents}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card className="border-primary">
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2 text-primary">
-                <Database className="w-4 h-4" />
-                Ledger Records
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-serif font-medium text-primary">
-                {stats?.totalParticipationRecords}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+          <motion.div variants={statCard}>
+            <Card className="border-primary/30">
+              <CardHeader className="pb-2">
+                <CardDescription className="flex items-center gap-2 text-primary">
+                  <Database className="w-4 h-4" />
+                  Ledger Records
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-serif font-light text-primary">
+                  {stats?.totalParticipationRecords}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
 
         {/* Secondary Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Organizers</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-serif font-medium text-display">
-                {stats?.totalOrganizers}
-              </p>
-            </CardContent>
-          </Card>
+        <motion.div 
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+          variants={statsContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+        >
+          <motion.div variants={statCard}>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Organizers</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-serif font-light text-display">
+                  {stats?.totalOrganizers}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Cities</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-serif font-medium text-display">{stats?.totalCities}</p>
-            </CardContent>
-          </Card>
+          <motion.div variants={statCard}>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Cities</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-serif font-light text-display">{stats?.totalCities}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Published Events</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-serif font-medium text-display">
-                {stats?.publishedEvents}
-              </p>
-            </CardContent>
-          </Card>
+          <motion.div variants={statCard}>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Published Events</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-serif font-light text-display">
+                  {stats?.publishedEvents}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Completed Events</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-serif font-medium text-display">
-                {stats?.completedEvents}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+          <motion.div variants={statCard}>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Completed Events</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-serif font-light text-display">
+                  {stats?.completedEvents}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
 
         {/* Tabs Content */}
         <Tabs defaultValue="analytics" className="space-y-6">
@@ -299,122 +359,147 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="events">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-serif">Recent Events</CardTitle>
-                <CardDescription>Latest events across the platform</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {recentEvents.map((event) => (
-                    <Link
-                      key={event.id}
-                      to={`/events/${event.id}`}
-                      className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-                    >
-                      <div>
-                        <p className="font-medium text-display">{event.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {event.organizer?.display_name} • {event.event_date}
-                        </p>
-                      </div>
-                      <Badge
-                        variant={
-                          event.status === "published"
-                            ? "default"
-                            : event.status === "live"
-                            ? "destructive"
-                            : "secondary"
-                        }
-                      >
-                        {event.status}
-                      </Badge>
-                    </Link>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-serif font-light">Recent Events</CardTitle>
+                  <CardDescription>Latest events across the platform</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <motion.div 
+                    className="space-y-3"
+                    variants={feedContainer}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {recentEvents.map((event) => (
+                      <motion.div key={event.id} variants={feedItem}>
+                        <Link
+                          to={`/events/${event.id}`}
+                          className="flex items-center justify-between p-3 rounded-lg border border-border hover:opacity-95 transition-opacity duration-350"
+                        >
+                          <div>
+                            <p className="font-medium text-display">{event.title}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {event.organizer?.display_name} • {event.event_date}
+                            </p>
+                          </div>
+                          <Badge
+                            variant={
+                              event.status === "published"
+                                ? "default"
+                                : event.status === "live"
+                                ? "destructive"
+                                : "secondary"
+                            }
+                          >
+                            {event.status}
+                          </Badge>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="clubs">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-serif">Top Clubs by Events</CardTitle>
-                <CardDescription>Most active clubs on the platform</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {topClubs.map((club, index) => (
-                    <Link
-                      key={club.id}
-                      to={`/clubs/${club.id}`}
-                      className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
-                          {index + 1}
-                        </span>
-                        <div>
-                          <p className="font-medium text-display">{club.name}</p>
-                          <Badge variant="outline" className="text-xs capitalize">
-                            {club.category}
-                          </Badge>
-                        </div>
-                      </div>
-                      <span className="text-muted-foreground">{club.event_count} events</span>
-                    </Link>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-serif font-light">Top Clubs by Events</CardTitle>
+                  <CardDescription>Most active clubs on the platform</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <motion.div 
+                    className="space-y-3"
+                    variants={feedContainer}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {topClubs.map((club, index) => (
+                      <motion.div key={club.id} variants={feedItem}>
+                        <Link
+                          to={`/clubs/${club.id}`}
+                          className="flex items-center justify-between p-3 rounded-lg border border-border hover:opacity-95 transition-opacity duration-350"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
+                              {index + 1}
+                            </span>
+                            <div>
+                              <p className="font-medium text-display">{club.name}</p>
+                              <Badge variant="outline" className="text-xs capitalize">
+                                {club.category}
+                              </Badge>
+                            </div>
+                          </div>
+                          <span className="text-muted-foreground">{club.event_count} events</span>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="health">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-serif flex items-center gap-2">
-                  <Activity className="w-5 h-5" />
-                  System Health
-                </CardTitle>
-                <CardDescription>Platform status and metrics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-lg bg-accent/30">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                      <span className="font-medium">Ledger Integrity</span>
-                    </div>
-                    <Badge variant="outline" className="text-green-600 border-green-600">
-                      Healthy
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 rounded-lg bg-accent/30">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                      <span className="font-medium">Database Status</span>
-                    </div>
-                    <Badge variant="outline" className="text-green-600 border-green-600">
-                      Operational
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 rounded-lg bg-accent/30">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                      <span className="font-medium">Authentication</span>
-                    </div>
-                    <Badge variant="outline" className="text-green-600 border-green-600">
-                      Active
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-serif font-light flex items-center gap-2">
+                    <Activity className="w-5 h-5" strokeWidth={1} />
+                    System Health
+                  </CardTitle>
+                  <CardDescription>Platform status and metrics</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <motion.div 
+                    className="space-y-4"
+                    variants={feedContainer}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {[
+                      { label: "Ledger Integrity", status: "Healthy" },
+                      { label: "Database Status", status: "Operational" },
+                      { label: "Authentication", status: "Active" },
+                    ].map((item) => (
+                      <motion.div 
+                        key={item.label}
+                        variants={feedItem}
+                        className="flex items-center justify-between p-4 rounded-lg bg-accent/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                          <span className="font-medium">{item.label}</span>
+                        </div>
+                        <Badge variant="outline" className="text-green-600 border-green-600">
+                          {item.status}
+                        </Badge>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </TabsContent>
         </Tabs>
-      </div>
+      </motion.div>
     </Layout>
   );
 };

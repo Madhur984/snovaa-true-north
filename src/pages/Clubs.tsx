@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Search, Users, Calendar, MapPin, Plus, ArrowRight } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { AnimatedText } from "@/components/ui/AnimatedText";
 import { useParallax } from "@/hooks/use-parallax";
+import { fadeUp, fadeOnly, feedContainer, feedItem, scrollViewport } from "@/lib/motion";
 import clubsHero from "@/assets/clubs-hero.jpg";
 
 interface Club {
@@ -104,37 +105,38 @@ const Clubs = () => {
         </div>
         
         <div className="container max-w-5xl relative z-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <motion.div 
+            className="flex flex-col md:flex-row md:items-end justify-between gap-8"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+          >
             <div className="max-w-2xl">
-              <AnimatedText 
-                as="p" 
-                className="text-xs font-sans font-light tracking-luxury uppercase text-subtle mb-8"
-              >
+              <p className="text-xs font-sans font-light tracking-luxury uppercase text-subtle mb-8">
                 Verified Communities
-              </AnimatedText>
+              </p>
               
-              <AnimatedText as="h1" delay={100} className="font-serif font-light text-display mb-8">
+              <h1 className="font-serif text-4xl md:text-5xl font-light text-display mb-8">
                 Find Your Community
-              </AnimatedText>
+              </h1>
               
-              <AnimatedText as="p" delay={200} className="text-lg md:text-xl text-body font-light leading-relaxed max-w-xl">
+              <p className="text-lg md:text-xl text-body font-light leading-relaxed max-w-xl">
                 Discover verified clubs organizing events in your city. Each club maintains an
                 immutable record of their activities.
-              </AnimatedText>
+              </p>
             </div>
             
             {profile?.role === "organizer" && (
-              <AnimatedText delay={300}>
-                <Link 
-                  to="/clubs/create"
-                  className="inline-flex items-center gap-3 text-xs font-sans tracking-luxury uppercase bg-primary text-primary-foreground px-6 py-4 hover:opacity-90 transition-opacity duration-500"
-                >
-                  <Plus className="w-4 h-4" />
-                  Create Club
-                </Link>
-              </AnimatedText>
+              <Link 
+                to="/clubs/create"
+                className="inline-flex items-center gap-3 text-xs font-sans tracking-luxury uppercase bg-primary text-primary-foreground px-6 py-4 hover:opacity-85 transition-opacity duration-350"
+              >
+                <Plus className="w-4 h-4" />
+                Create Club
+              </Link>
             )}
-          </div>
+          </motion.div>
 
           {/* Filters */}
           <div className="mt-16 space-y-8">
