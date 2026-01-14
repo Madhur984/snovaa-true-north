@@ -23,7 +23,7 @@ interface HeroBackgroundProps {
 export function HeroBackground({
   image,
   speed = 0.3,
-  opacity = 60,
+  opacity = 90,
   grayscale = 30,
   vignette = true,
   overlay = "medium",

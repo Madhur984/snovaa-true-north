@@ -56,7 +56,7 @@ const Map = () => {
       <HeroBackground
         image={mapHero}
         speed={0.2}
-        opacity={40}
+        opacity={80}
         grayscale={50}
         overlay="heavy"
         vignette
