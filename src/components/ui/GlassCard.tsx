@@ -9,16 +9,16 @@ export interface LuxuryCardProps {
   variant?: "default" | "bordered" | "minimal";
 }
 
-export function GlassCard({ 
-  children, 
-  className, 
-  hover = false, 
+export function GlassCard({
+  children,
+  className,
+  hover = false,
   style,
   variant = "default"
 }: LuxuryCardProps) {
   const variants = {
-    default: "bg-card border-hairline border-border/40",
-    bordered: "bg-transparent border border-border/60",
+    default: "bg-card border-hairline border-border/80",
+    bordered: "bg-transparent border border-border",
     minimal: "bg-transparent",
   };
 
@@ -49,29 +49,29 @@ export interface GlassImageCardProps {
   overlay?: boolean;
 }
 
-export function GlassImageCard({ 
-  children, 
-  imageUrl, 
+export function GlassImageCard({
+  children,
+  imageUrl,
   className,
   imageClassName,
-  overlay = true 
+  overlay = true
 }: GlassImageCardProps) {
   return (
     <div
       className={cn(
         "group relative overflow-hidden",
         "bg-card",
-        "border-hairline border-border/30",
+        "border-hairline border-border/70",
         "transition-all duration-600 ease-luxury",
-        "hover:border-border/60",
+        "hover:border-border",
         className
       )}
     >
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img 
-          src={imageUrl} 
-          alt="" 
+        <img
+          src={imageUrl}
+          alt=""
           className={cn(
             "w-full h-full object-cover",
             "transition-transform duration-800 ease-luxury",
@@ -84,7 +84,7 @@ export function GlassImageCard({
           <div className="absolute inset-0 bg-background/10 group-hover:bg-transparent transition-colors duration-600" />
         )}
       </div>
-      
+
       {/* Content */}
       <div className="relative">
         {children}
