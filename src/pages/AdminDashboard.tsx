@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { AnalyticsCharts } from "@/components/admin/AnalyticsCharts";
+import { HeroBackground } from "@/components/ui/HeroBackground";
 import { 
   fadeUp, 
   fadeOnly, 
@@ -23,7 +24,6 @@ import {
   feedItem,
   scrollViewport 
 } from "@/lib/motion";
-import { useParallax } from "@/hooks/use-parallax";
 import adminHero from "@/assets/admin-hero.jpg";
 
 interface SystemStats {
@@ -58,7 +58,6 @@ const AdminDashboard = () => {
   const [recentEvents, setRecentEvents] = useState<RecentEvent[]>([]);
   const [topClubs, setTopClubs] = useState<TopClub[]>([]);
   const [loading, setLoading] = useState(true);
-  const parallaxOffset = useParallax(0.3);
 
   useEffect(() => {
     if (profile?.role === "organizer") {
@@ -176,16 +175,15 @@ const AdminDashboard = () => {
 
   return (
     <Layout>
-      {/* Hero Background with Parallax */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <img 
-          src={adminHero} 
-          alt="" 
-          className="w-full h-[120%] object-cover opacity-55"
-          style={{ transform: `translateY(${parallaxOffset}px) scale(1.05)` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
-      </div>
+      {/* Full-page background with vignette */}
+      <HeroBackground 
+        image={adminHero} 
+        speed={0.2} 
+        opacity={55} 
+        grayscale={20} 
+        overlay="heavy"
+        vignette
+      />
 
       <motion.div 
         className="container max-w-6xl py-12"

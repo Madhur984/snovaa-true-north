@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HeroBackground } from "@/components/ui/HeroBackground";
 import { Users, Calendar, MapPin, TrendingUp, BarChart3, Shield } from "lucide-react";
 import { format } from "date-fns";
+import { fadeUp, fadeOnly, statsContainer, statCard, scrollViewport } from "@/lib/motion";
 import sponsorHero from "@/assets/sponsor-hero.jpg";
 
 interface EventAnalytics {
@@ -115,10 +118,15 @@ const SponsorDashboard = () => {
     return (
       <Layout>
         <div className="container max-w-6xl py-12">
-          <div className="animate-pulse space-y-4">
+          <motion.div 
+            variants={fadeOnly}
+            initial="hidden"
+            animate="visible"
+            className="space-y-4"
+          >
             <div className="h-8 bg-muted rounded w-1/3"></div>
             <div className="h-4 bg-muted rounded w-1/2"></div>
-          </div>
+          </motion.div>
         </div>
       </Layout>
     );
@@ -127,29 +135,34 @@ const SponsorDashboard = () => {
   if (error) {
     return (
       <Layout>
-        <div className="container max-w-6xl py-12 text-center">
-          <Shield className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-          <h1 className="font-serif text-2xl font-medium text-display mb-2">Access Denied</h1>
-          <p className="text-muted-foreground mb-6">{error}</p>
+        <motion.div 
+          className="container max-w-6xl py-12 text-center"
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+        >
+          <Shield className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1} />
+          <h1 className="font-serif text-2xl font-light text-display mb-2">Access Denied</h1>
+          <p className="text-muted-foreground mb-6 font-light">{error}</p>
           <Button asChild variant="outline">
             <Link to="/">Go Home</Link>
           </Button>
-        </div>
+        </motion.div>
       </Layout>
     );
   }
 
   return (
     <Layout>
-      {/* Hero Background */}
-      <div className="fixed inset-0 -z-10">
-        <img 
-          src={sponsorHero} 
-          alt="" 
-          className="w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/85 to-background" />
-      </div>
+      {/* Full-page background with vignette */}
+      <HeroBackground 
+        image={sponsorHero} 
+        speed={0.2} 
+        opacity={60} 
+        grayscale={20} 
+        overlay="heavy"
+        vignette
+      />
 
       <div className="container max-w-6xl py-12">
         {/* Header */}
