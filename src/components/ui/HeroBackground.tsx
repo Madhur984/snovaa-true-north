@@ -30,7 +30,7 @@ export function HeroBackground({
   className,
 }: HeroBackgroundProps) {
   const parallaxOffset = useParallax(speed);
-  
+
   // Slower secondary parallax for depth layering
   const parallaxOffsetSlow = useParallax(speed * 0.5);
 
@@ -42,19 +42,19 @@ export function HeroBackground({
 
   return (
     <div className={cn("fixed inset-0 -z-30 overflow-hidden", className)}>
-      {/* Primary image layer with parallax */}
-      <div 
-        className="absolute inset-0 w-full h-[140%] -top-[20%]"
-        style={{ 
-          transform: `translateY(${parallaxOffset}px) scale(1.1)`,
+      {/* Primary image layer with parallax - optimized to prevent stretching */}
+      <div
+        className="absolute inset-0 w-full h-[110%] -top-[5%]"
+        style={{
+          transform: `translateY(${parallaxOffset * 0.5}px)`,
           transition: "transform 0.1s ease-out",
         }}
       >
-        <img 
-          src={image} 
-          alt="" 
+        <img
+          src={image}
+          alt=""
           className="w-full h-full object-cover"
-          style={{ 
+          style={{
             opacity: opacity / 100,
             filter: `grayscale(${grayscale}%)`,
           }}
@@ -63,7 +63,7 @@ export function HeroBackground({
 
       {/* Vignette layer */}
       {vignette && (
-        <div 
+        <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background: `radial-gradient(ellipse at center, transparent 0%, transparent 40%, hsl(var(--background) / 0.3) 70%, hsl(var(--background) / 0.7) 100%)`,
@@ -73,7 +73,7 @@ export function HeroBackground({
       )}
 
       {/* Primary gradient overlay - top to bottom */}
-      <div 
+      <div
         className={cn(
           "absolute inset-0 bg-gradient-to-b",
           overlayStyles[overlay]
@@ -81,7 +81,7 @@ export function HeroBackground({
       />
 
       {/* Secondary radial gradient for center focus */}
-      <div 
+      <div
         className="absolute inset-0"
         style={{
           background: `radial-gradient(ellipse 80% 60% at 50% 30%, transparent 0%, hsl(var(--background) / 0.4) 100%)`,
@@ -89,7 +89,7 @@ export function HeroBackground({
       />
 
       {/* Bottom fade for content readability */}
-      <div 
+      <div
         className="absolute bottom-0 left-0 right-0 h-1/3"
         style={{
           background: `linear-gradient(to top, hsl(var(--background)) 0%, hsl(var(--background) / 0.8) 40%, transparent 100%)`,
