@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { GlassCard, GlassImageCard } from "@/components/ui/GlassCard";
 import { Calendar, MapPin, Clock, Search, Users, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
-import { AnimatedText } from "@/components/ui/AnimatedText";
 import { useParallax } from "@/hooks/use-parallax";
+import { fadeUp, fadeOnly, feedContainer, feedItem, editorialContainer, scrollViewport } from "@/lib/motion";
 import eventsHero from "@/assets/events-hero.jpg";
 
 // Event category images
@@ -88,38 +89,39 @@ const Events = () => {
         </div>
         
         <div className="container max-w-5xl relative z-10">
-          <div className="max-w-3xl">
-            <AnimatedText 
-              as="p" 
-              className="text-xs font-sans font-light tracking-luxury uppercase text-subtle mb-8"
-            >
+          <motion.div 
+            className="max-w-3xl"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={scrollViewport}
+          >
+            <p className="text-xs font-sans font-light tracking-luxury uppercase text-subtle mb-8">
               Curated Gatherings
-            </AnimatedText>
+            </p>
             
-            <AnimatedText as="h1" delay={100} className="font-serif font-light text-display mb-8">
+            <h1 className="font-serif text-4xl md:text-5xl font-light text-display mb-8">
               Discover Events
-            </AnimatedText>
+            </h1>
             
-            <AnimatedText as="p" delay={200} className="text-lg md:text-xl text-body font-light leading-relaxed max-w-xl mb-12">
+            <p className="text-lg md:text-xl text-body font-light leading-relaxed max-w-xl mb-12">
               Browse verified events and register your participation. Every registration 
               is recorded with integrity.
-            </AnimatedText>
+            </p>
 
             {/* Minimal Search */}
-            <AnimatedText delay={300} className="block">
-              <div className="border-b border-border/60 pb-4">
-                <div className="relative">
-                  <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
-                  <Input
-                    placeholder="Search events..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 h-12 text-base border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-subtle font-light"
-                  />
-                </div>
+            <div className="border-b border-border/60 pb-4">
+              <div className="relative">
+                <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
+                <Input
+                  placeholder="Search events..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8 h-12 text-base border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-subtle font-light"
+                />
               </div>
-            </AnimatedText>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
