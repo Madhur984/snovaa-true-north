@@ -1,26 +1,209 @@
-import { useRef, useMemo, useState } from "react";
+import { useRef, useMemo, useState, useCallback } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, Trail, Sphere, Line } from "@react-three/drei";
+import { Float, Trail, Line } from "@react-three/drei";
 import * as THREE from "three";
 
-// Event node - represents a floating event orb
+// Click ripple effect - expanding ring that fades out
+function ClickRipple({ 
+  position, 
+  color, 
+  onComplete 
+}: { 
+  position: [number, number, number]; 
+  color: string;
+  onComplete: () => void;
+}) {
+  const ringRef = useRef<THREE.Mesh>(null);
+  const startTime = useRef(Date.now());
+  const duration = 1200; // ms
+
+  useFrame(() => {
+    if (!ringRef.current) return;
+    
+    const elapsed = Date.now() - startTime.current;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Expand and fade
+    const scale = 0.5 + progress * 3;
+    ringRef.current.scale.setScalar(scale);
+    
+    // @ts-ignore - accessing material opacity
+    if (ringRef.current.material) {
+      (ringRef.current.material as THREE.MeshStandardMaterial).opacity = 1 - progress;
+    }
+    
+    if (progress >= 1) {
+      onComplete();
+    }
+  });
+
+  return (
+    <mesh ref={ringRef} position={position} rotation={[Math.PI / 2, 0, 0]}>
+      <torusGeometry args={[1, 0.03, 8, 64]} />
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={2}
+        transparent
+        opacity={1}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
+}
+
+// Burst particle - spawned on click
+function BurstParticle({ 
+  startPosition, 
+  velocity, 
+  color,
+  onComplete 
+}: { 
+  startPosition: [number, number, number]; 
+  velocity: [number, number, number];
+  color: string;
+  onComplete: () => void;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const startTime = useRef(Date.now());
+  const duration = 1500;
+  const pos = useRef([...startPosition]);
+
+  useFrame(() => {
+    if (!meshRef.current) return;
+    
+    const elapsed = Date.now() - startTime.current;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Physics: position + velocity * time + gravity
+    const gravity = -2;
+    const t = progress * 1.5;
+    pos.current[0] = startPosition[0] + velocity[0] * t;
+    pos.current[1] = startPosition[1] + velocity[1] * t + 0.5 * gravity * t * t;
+    pos.current[2] = startPosition[2] + velocity[2] * t;
+    
+    meshRef.current.position.set(pos.current[0], pos.current[1], pos.current[2]);
+    
+    // Scale down and fade
+    const scale = (1 - progress) * 0.15;
+    meshRef.current.scale.setScalar(scale);
+    
+    // @ts-ignore
+    if (meshRef.current.material) {
+      (meshRef.current.material as THREE.MeshStandardMaterial).opacity = 1 - progress * 0.8;
+    }
+    
+    if (progress >= 1) {
+      onComplete();
+    }
+  });
+
+  return (
+    <mesh ref={meshRef} position={startPosition}>
+      <sphereGeometry args={[1, 8, 8]} />
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={1.5}
+        transparent
+        opacity={1}
+      />
+    </mesh>
+  );
+}
+
+// Click effects manager
+interface ClickEffect {
+  id: number;
+  type: 'ripple' | 'particle';
+  position: [number, number, number];
+  color: string;
+  velocity?: [number, number, number];
+}
+
+function useClickEffects() {
+  const [effects, setEffects] = useState<ClickEffect[]>([]);
+  const idCounter = useRef(0);
+
+  const spawnEffects = useCallback((position: [number, number, number], color: string) => {
+    const newEffects: ClickEffect[] = [];
+    
+    // Add ripple
+    newEffects.push({
+      id: idCounter.current++,
+      type: 'ripple',
+      position: [...position] as [number, number, number],
+      color,
+    });
+    
+    // Add burst particles (8-12 particles)
+    const particleCount = 8 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < particleCount; i++) {
+      const angle = (i / particleCount) * Math.PI * 2 + Math.random() * 0.5;
+      const speed = 1.5 + Math.random() * 2;
+      const upward = 1.5 + Math.random() * 2;
+      
+      newEffects.push({
+        id: idCounter.current++,
+        type: 'particle',
+        position: [...position] as [number, number, number],
+        color,
+        velocity: [
+          Math.cos(angle) * speed,
+          upward,
+          Math.sin(angle) * speed * 0.5,
+        ],
+      });
+    }
+    
+    setEffects(prev => [...prev, ...newEffects]);
+  }, []);
+
+  const removeEffect = useCallback((id: number) => {
+    setEffects(prev => prev.filter(e => e.id !== id));
+  }, []);
+
+  return { effects, spawnEffects, removeEffect };
+}
+
+// Event node - represents a floating event orb with click interaction
 function EventNode({ 
   position, 
   scale, 
   color, 
   speed,
-  mousePos 
+  mousePos,
+  onNodeClick
 }: { 
   position: [number, number, number]; 
   scale: number; 
   color: string;
   speed: number;
   mousePos: React.MutableRefObject<{ x: number; y: number }>;
+  onNodeClick: (pos: [number, number, number], color: string) => void;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
+  const [clicked, setClicked] = useState(false);
   const originalPos = useRef(position);
   const pulsePhase = useRef(Math.random() * Math.PI * 2);
+  const clickTime = useRef(0);
+
+  const handleClick = useCallback(() => {
+    if (!meshRef.current) return;
+    
+    setClicked(true);
+    clickTime.current = Date.now();
+    
+    // Get current world position
+    const worldPos: [number, number, number] = [
+      meshRef.current.position.x,
+      meshRef.current.position.y,
+      meshRef.current.position.z,
+    ];
+    
+    onNodeClick(worldPos, color);
+  }, [color, onNodeClick]);
 
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -41,10 +224,20 @@ function EventNode({
     meshRef.current.position.x = originalPos.current[0] + floatX - (dx / dist) * repelStrength * (dist < 4 ? 1 : 0);
     meshRef.current.position.y = originalPos.current[1] + floatY - (dy / dist) * repelStrength * (dist < 4 ? 1 : 0);
     
-    // Pulse scale on hover
-    const targetScale = hovered ? scale * 1.4 : scale;
-    const pulseScale = 1 + Math.sin(time * 3) * (hovered ? 0.1 : 0.02);
-    meshRef.current.scale.setScalar(THREE.MathUtils.lerp(meshRef.current.scale.x, targetScale * pulseScale, 0.1));
+    // Click bounce effect
+    const clickElapsed = Date.now() - clickTime.current;
+    const clickBounce = clicked && clickElapsed < 300 
+      ? Math.sin((clickElapsed / 300) * Math.PI) * 0.3 
+      : 0;
+    
+    if (clicked && clickElapsed > 300) {
+      setClicked(false);
+    }
+    
+    // Pulse scale on hover + click bounce
+    const baseScale = clicked ? scale * 1.6 : (hovered ? scale * 1.4 : scale);
+    const pulseScale = 1 + Math.sin(time * 3) * (hovered ? 0.1 : 0.02) + clickBounce;
+    meshRef.current.scale.setScalar(THREE.MathUtils.lerp(meshRef.current.scale.x, baseScale * pulseScale, 0.15));
   });
 
   return (
@@ -53,12 +246,13 @@ function EventNode({
       position={position}
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
+      onClick={handleClick}
     >
       <sphereGeometry args={[1, 32, 32]} />
       <meshStandardMaterial
         color={color}
         emissive={color}
-        emissiveIntensity={hovered ? 0.8 : 0.3}
+        emissiveIntensity={clicked ? 1.5 : (hovered ? 0.8 : 0.3)}
         metalness={0.2}
         roughness={0.3}
         transparent
@@ -357,10 +551,10 @@ function AmbientParticles({ count, mousePos }: {
   );
 }
 
-// Main scene with mouse tracking
+// Main scene with mouse tracking and click effects
 function Scene() {
   const mousePos = useRef({ x: 0, y: 0 });
-  const { viewport } = useThree();
+  const { effects, spawnEffects, removeEffect } = useClickEffects();
 
   const nodes = useMemo(() => [
     { position: [-3, 1.5, 0] as [number, number, number], scale: 0.25, color: "#5599AA", speed: 0.8 },
@@ -374,10 +568,13 @@ function Scene() {
   ], []);
 
   useFrame((state) => {
-    // Convert pointer to normalized coordinates
     mousePos.current.x = state.pointer.x;
     mousePos.current.y = state.pointer.y;
   });
+
+  const handleNodeClick = useCallback((pos: [number, number, number], color: string) => {
+    spawnEffects(pos, color);
+  }, [spawnEffects]);
 
   return (
     <>
@@ -386,10 +583,30 @@ function Scene() {
       <directionalLight position={[-5, 5, 5]} intensity={0.4} color="#88CCCC" />
       <pointLight position={[0, 0, 5]} intensity={0.3} color="#5599AA" />
 
-      {/* Event nodes */}
+      {/* Event nodes with click handler */}
       {nodes.map((node, i) => (
-        <EventNode key={i} {...node} mousePos={mousePos} />
+        <EventNode key={i} {...node} mousePos={mousePos} onNodeClick={handleNodeClick} />
       ))}
+
+      {/* Click effects */}
+      {effects.map((effect) => 
+        effect.type === 'ripple' ? (
+          <ClickRipple
+            key={effect.id}
+            position={effect.position}
+            color={effect.color}
+            onComplete={() => removeEffect(effect.id)}
+          />
+        ) : (
+          <BurstParticle
+            key={effect.id}
+            startPosition={effect.position}
+            velocity={effect.velocity!}
+            color={effect.color}
+            onComplete={() => removeEffect(effect.id)}
+          />
+        )
+      )}
 
       {/* Connection lines */}
       <ConnectionLines nodes={nodes} />
@@ -416,7 +633,7 @@ export function EventConstellationScene() {
         camera={{ position: [0, 0, 8], fov: 50 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true }}
-        style={{ pointerEvents: "auto" }}
+        style={{ pointerEvents: "auto", cursor: "default" }}
       >
         <Scene />
       </Canvas>
