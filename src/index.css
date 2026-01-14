@@ -30,20 +30,17 @@
     --destructive: 0 45% 45%;
     --destructive-foreground: 40 20% 97%;
 
-    --border: 35 10% 75%;
-    --input: 35 10% 75%;
+    --border: 35 10% 60%;
+    --input: 35 10% 60%;
     --ring: 30 8% 15%;
 
     --radius: 0rem;
 
 
-    /* Silent Luxury tokens - Increased Contrast */
-    --text-display: 30 12% 5%;
-    /* Darker */
-    --text-body: 30 8% 15%;
-    /* Much darker than 30% */
-    --text-subtle: 30 6% 35%;
-    /* Darker than 50% */
+    /* Silent Luxury tokens - Maximum Contrast */
+    --text-display: 30 15% 5%;
+    --text-body: 30 15% 10%;
+    --text-subtle: 30 10% 20%;
     --surface-elevated: 40 25% 99%;
     --surface-sunken: 35 12% 94%;
     --accent-soft: 35 15% 96%;

@@ -53,12 +53,12 @@ const Map = () => {
   return (
     <Layout>
       {/* Full-page background with vignette */}
-      <HeroBackground 
-        image={mapHero} 
-        speed={0.2} 
-        opacity={65} 
-        grayscale={40} 
-        overlay="medium"
+      <HeroBackground
+        image={mapHero}
+        speed={0.2}
+        opacity={40}
+        grayscale={50}
+        overlay="heavy"
         vignette
       />
 
@@ -81,7 +81,7 @@ const Map = () => {
         </motion.div>
 
         {/* Stats */}
-        <motion.div 
+        <motion.div
           className="grid md:grid-cols-3 gap-px bg-border/30 mb-20"
           variants={statsContainer}
           initial="hidden"
@@ -93,8 +93,8 @@ const Map = () => {
             { label: "Events", value: totalEvents, icon: TrendingUp },
             { label: "Attendees", value: totalParticipation, icon: Users },
           ].map((stat) => (
-            <motion.div 
-              key={stat.label} 
+            <motion.div
+              key={stat.label}
               variants={statCard}
               className="bg-background p-12 text-center"
             >
@@ -114,17 +114,17 @@ const Map = () => {
           <GlassCard variant="bordered" className="p-8 md:p-12">
             <h2 className="font-serif text-xl font-light text-display mb-8">City Rankings</h2>
             {loading ? (
-              <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="h-16 bg-muted/20 animate-pulse" />)}</div>
+              <div className="space-y-4">{[1, 2, 3].map(i => <div key={i} className="h-16 bg-muted/20 animate-pulse" />)}</div>
             ) : (
-              <motion.div 
+              <motion.div
                 className="space-y-0"
                 variants={feedContainer}
                 initial="hidden"
                 animate="visible"
               >
                 {cityStats.map((city, index) => (
-                  <motion.div 
-                    key={city.id} 
+                  <motion.div
+                    key={city.id}
                     variants={feedItem}
                     className="flex items-center justify-between py-6 border-t border-border/30 first:border-0"
                   >
