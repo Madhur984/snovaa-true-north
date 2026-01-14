@@ -15,7 +15,7 @@ import {
 } from "@/lib/motion";
 import heroBg from "@/assets/hero-bg.jpg";
 
-const HeroScene = lazy(() => import("@/components/3d/HeroScene").then(m => ({ default: m.HeroScene })));
+const EventConstellationScene = lazy(() => import("@/components/3d/EventConstellationScene").then(m => ({ default: m.EventConstellationScene })));
 
 const stats = [
   { label: "Active Events", value: "500+", icon: Calendar },
@@ -62,7 +62,7 @@ const Index = () => {
       {/* Hero Section - Silent Luxury */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
         <Suspense fallback={null}>
-          <HeroScene />
+          <EventConstellationScene />
         </Suspense>
         
         <div className="container max-w-5xl relative z-10 py-32">

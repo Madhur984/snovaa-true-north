@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
 import { AccountMenu } from "@/components/layout/AccountMenu";
+import { MobileNav } from "@/components/layout/MobileNav";
 
 export const Header = () => {
   const { user, profile, signOut } = useAuth();
@@ -41,8 +41,8 @@ export const Header = () => {
             ))}
           </nav>
 
-          {/* Auth - Minimal */}
-          <div className="flex items-center gap-6">
+          {/* Auth - Desktop */}
+          <div className="hidden md:flex items-center gap-6">
             {user ? (
               <AccountMenu label={profile?.display_name || "Account"} onSignOut={handleSignOut} />
             ) : (
@@ -62,6 +62,9 @@ export const Header = () => {
               </>
             )}
           </div>
+
+          {/* Mobile Navigation */}
+          <MobileNav />
         </div>
       </div>
     </header>
