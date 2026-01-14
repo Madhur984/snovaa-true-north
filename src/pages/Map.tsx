@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, TrendingUp, Users } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { AnimatedText } from "@/components/ui/AnimatedText";
-import { useParallax } from "@/hooks/use-parallax";
+import { HeroBackground } from "@/components/ui/HeroBackground";
+import { fadeUp, statsContainer, statCard, feedContainer, feedItem, scrollViewport } from "@/lib/motion";
 import mapHero from "@/assets/map-hero.jpg";
 
 interface CityStats {
@@ -49,67 +50,101 @@ const Map = () => {
     setLoading(false);
   };
 
-  const parallaxOffset = useParallax(0.2);
-
   return (
     <Layout>
-      <div className="fixed inset-0 -z-30 overflow-hidden">
-        <img src={mapHero} alt="" className="w-full h-[120%] object-cover opacity-65 grayscale-[40%]"
-          style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }} />
-        <div className="absolute inset-0 bg-background/70" />
-      </div>
+      {/* Full-page background with vignette */}
+      <HeroBackground 
+        image={mapHero} 
+        speed={0.2} 
+        opacity={65} 
+        grayscale={40} 
+        overlay="medium"
+        vignette
+      />
 
       <div className="container max-w-5xl py-32 relative z-10">
-        <AnimatedText as="p" className="text-xs font-sans font-light tracking-luxury uppercase text-subtle mb-8">
-          Global Presence
-        </AnimatedText>
-        <AnimatedText as="h1" delay={100} className="font-serif font-light text-display mb-8">
-          Participation Density
-        </AnimatedText>
-        <AnimatedText as="p" delay={200} className="text-lg text-body font-light max-w-xl mb-16">
-          City-level view of participation volume. No live tracking—just aggregate truth.
-        </AnimatedText>
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+        >
+          <p className="text-xs font-sans font-light tracking-luxury uppercase text-subtle mb-8">
+            Global Presence
+          </p>
+          <h1 className="font-serif text-4xl md:text-5xl font-light text-display mb-8">
+            Participation Density
+          </h1>
+          <p className="text-lg text-body font-light max-w-xl mb-16">
+            City-level view of participation volume. No live tracking—just aggregate truth.
+          </p>
+        </motion.div>
 
         {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-px bg-border/30 mb-20">
+        <motion.div 
+          className="grid md:grid-cols-3 gap-px bg-border/30 mb-20"
+          variants={statsContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+        >
           {[
             { label: "Cities", value: cityStats.length, icon: MapPin },
             { label: "Events", value: totalEvents, icon: TrendingUp },
             { label: "Attendees", value: totalParticipation, icon: Users },
-          ].map((stat, i) => (
-            <div key={stat.label} className="bg-background p-12 text-center opacity-0 animate-fade-in"
-              style={{ animationDelay: `${300 + i * 100}ms`, animationFillMode: "forwards" }}>
+          ].map((stat) => (
+            <motion.div 
+              key={stat.label} 
+              variants={statCard}
+              className="bg-background p-12 text-center"
+            >
               <p className="font-serif text-4xl font-light text-display mb-2">{stat.value}</p>
               <p className="text-xs font-sans tracking-luxury uppercase text-subtle">{stat.label}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* City List */}
-        <GlassCard variant="bordered" className="p-8 md:p-12">
-          <h2 className="font-serif text-xl font-light text-display mb-8">City Rankings</h2>
-          {loading ? (
-            <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="h-16 bg-muted/20 animate-pulse" />)}</div>
-          ) : (
-            <div className="space-y-0">
-              {cityStats.map((city, index) => (
-                <div key={city.id} className="flex items-center justify-between py-6 border-t border-border/30 first:border-0">
-                  <div className="flex items-center gap-6">
-                    <span className="font-serif text-2xl font-light text-subtle w-12">{String(index + 1).padStart(2, '0')}</span>
-                    <div>
-                      <p className="font-light text-display">{city.name}</p>
-                      <p className="text-xs text-subtle">{city.country}</p>
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={scrollViewport}
+        >
+          <GlassCard variant="bordered" className="p-8 md:p-12">
+            <h2 className="font-serif text-xl font-light text-display mb-8">City Rankings</h2>
+            {loading ? (
+              <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="h-16 bg-muted/20 animate-pulse" />)}</div>
+            ) : (
+              <motion.div 
+                className="space-y-0"
+                variants={feedContainer}
+                initial="hidden"
+                animate="visible"
+              >
+                {cityStats.map((city, index) => (
+                  <motion.div 
+                    key={city.id} 
+                    variants={feedItem}
+                    className="flex items-center justify-between py-6 border-t border-border/30 first:border-0"
+                  >
+                    <div className="flex items-center gap-6">
+                      <span className="font-serif text-2xl font-light text-subtle w-12">{String(index + 1).padStart(2, '0')}</span>
+                      <div>
+                        <p className="font-light text-display">{city.name}</p>
+                        <p className="text-xs text-subtle">{city.country}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-serif text-2xl font-light text-display">{city.event_count}</p>
-                    <p className="text-xs text-subtle">events</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </GlassCard>
+                    <div className="text-right">
+                      <p className="font-serif text-2xl font-light text-display">{city.event_count}</p>
+                      <p className="text-xs text-subtle">events</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </GlassCard>
+        </motion.div>
       </div>
     </Layout>
   );

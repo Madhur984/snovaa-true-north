@@ -5,9 +5,9 @@ import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { GlassCard, GlassImageCard } from "@/components/ui/GlassCard";
+import { HeroBackground } from "@/components/ui/HeroBackground";
 import { Calendar, MapPin, Clock, Search, Users, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
-import { useParallax } from "@/hooks/use-parallax";
 import { fadeUp, fadeOnly, feedContainer, feedItem, editorialContainer, scrollViewport } from "@/lib/motion";
 import eventsHero from "@/assets/events-hero.jpg";
 
@@ -71,22 +71,20 @@ const Events = () => {
     return eventImages[index % eventImages.length];
   };
 
-  const parallaxOffset = useParallax(0.3);
-
   return (
     <Layout>
+      {/* Full-page background with vignette */}
+      <HeroBackground 
+        image={eventsHero} 
+        speed={0.25} 
+        opacity={75} 
+        grayscale={30} 
+        overlay="medium"
+        vignette
+      />
+
       {/* Hero Section - Editorial, minimal */}
       <section className="relative py-32 md:py-40 overflow-hidden">
-        {/* Background Image with Parallax */}
-        <div className="absolute inset-0 -z-20 overflow-hidden">
-          <img 
-            src={eventsHero} 
-            alt="" 
-            className="w-full h-[120%] object-cover opacity-75 grayscale-[30%]"
-            style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }}
-          />
-          <div className="absolute inset-0 bg-background/60" />
-        </div>
         
         <div className="container max-w-5xl relative z-10">
           <motion.div 

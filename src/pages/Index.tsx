@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { HeroBackground } from "@/components/ui/HeroBackground";
 import { Shield, Database, Eye, Lock, ArrowRight, Calendar, Users, MapPin } from "lucide-react";
-import { useParallax } from "@/hooks/use-parallax";
 import { 
   fadeUp, 
   fadeUpHero, 
@@ -47,23 +47,20 @@ const features = [
 ];
 
 const Index = () => {
-  const parallaxOffset = useParallax(0.4);
-
   return (
     <Layout showHeader={true}>
+      {/* Full-page background with vignette */}
+      <HeroBackground 
+        image={heroBg} 
+        speed={0.4} 
+        opacity={85} 
+        grayscale={40} 
+        overlay="light"
+        vignette
+      />
+
       {/* Hero Section - Silent Luxury */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
-        {/* Background Image with Parallax */}
-        <div className="absolute inset-0 -z-20 overflow-hidden">
-          <img 
-            src={heroBg} 
-            alt="" 
-            className="w-full h-[120%] object-cover opacity-85 grayscale-[40%]"
-            style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }}
-          />
-          <div className="absolute inset-0 bg-background/50" />
-        </div>
-        
         <Suspense fallback={null}>
           <HeroScene />
         </Suspense>

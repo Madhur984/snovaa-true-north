@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Plus, Users, MapPin, Clock } from "lucide-react";
 import { format } from "date-fns";
+import { HeroBackground } from "@/components/ui/HeroBackground";
 import { 
   fadeUp, 
   fadeOnly, 
@@ -19,7 +20,6 @@ import {
   scrollViewport 
 } from "@/lib/motion";
 import dashboardHero from "@/assets/dashboard-hero.jpg";
-import { useParallax } from "@/hooks/use-parallax";
 
 interface Event {
   id: string;
@@ -43,7 +43,6 @@ const Dashboard = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [myParticipation, setMyParticipation] = useState<Participation[]>([]);
   const [loading, setLoading] = useState(true);
-  const parallaxOffset = useParallax(0.3);
 
   useEffect(() => {
     if (profile) {
@@ -100,16 +99,15 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      {/* Hero Background with Parallax */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <img 
-          src={dashboardHero} 
-          alt="" 
-          className="w-full h-[120%] object-cover opacity-50"
-          style={{ transform: `translateY(${parallaxOffset}px) scale(1.05)` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/90 to-background" />
-      </div>
+      {/* Full-page background with vignette */}
+      <HeroBackground 
+        image={dashboardHero} 
+        speed={0.2} 
+        opacity={50} 
+        grayscale={20} 
+        overlay="heavy"
+        vignette
+      />
 
       <motion.div 
         className="container max-w-6xl py-12"
