@@ -88,11 +88,11 @@ export function HeroBackground({
         }}
       />
 
-      {/* Bottom fade for content readability */}
+      {/* Strong Bottom Fade - "Fade it from below" */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-1/3"
+        className="absolute bottom-0 left-0 right-0 h-1/2"
         style={{
-          background: `linear-gradient(to top, hsl(var(--background)) 0%, hsl(var(--background) / 0.8) 40%, transparent 100%)`,
+          background: `linear-gradient(to top, hsl(var(--background)) 10%, hsl(var(--background) / 0.9) 30%, hsl(var(--background) / 0.6) 60%, transparent 100%)`,
         }}
       />
     </div>
