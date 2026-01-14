@@ -58,7 +58,7 @@ const Index = () => {
           <img 
             src={heroBg} 
             alt="" 
-            className="w-full h-[120%] object-cover opacity-50 grayscale-[40%]"
+            className="w-full h-[120%] object-cover opacity-85 grayscale-[40%]"
             style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }}
           />
           <div className="absolute inset-0 bg-background/50" />

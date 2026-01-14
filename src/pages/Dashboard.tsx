@@ -105,7 +105,7 @@ const Dashboard = () => {
         <img 
           src={dashboardHero} 
           alt="" 
-          className="w-full h-[120%] object-cover opacity-15"
+          className="w-full h-[120%] object-cover opacity-50"
           style={{ transform: `translateY(${parallaxOffset}px) scale(1.05)` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/90 to-background" />
