@@ -146,7 +146,7 @@ const SponsorDashboard = () => {
         <img 
           src={sponsorHero} 
           alt="" 
-          className="w-full h-full object-cover opacity-25"
+          className="w-full h-full object-cover opacity-60"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/85 to-background" />
       </div>

@@ -54,7 +54,7 @@ const Map = () => {
   return (
     <Layout>
       <div className="fixed inset-0 -z-30 overflow-hidden">
-        <img src={mapHero} alt="" className="w-full h-[120%] object-cover opacity-30 grayscale-[40%]"
+        <img src={mapHero} alt="" className="w-full h-[120%] object-cover opacity-65 grayscale-[40%]"
           style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }} />
         <div className="absolute inset-0 bg-background/70" />
       </div>

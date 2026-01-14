@@ -82,7 +82,7 @@ const Events = () => {
           <img 
             src={eventsHero} 
             alt="" 
-            className="w-full h-[120%] object-cover opacity-40 grayscale-[30%]"
+            className="w-full h-[120%] object-cover opacity-75 grayscale-[30%]"
             style={{ transform: `translateY(${parallaxOffset}px) scale(1.1)` }}
           />
           <div className="absolute inset-0 bg-background/60" />

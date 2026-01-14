@@ -181,7 +181,7 @@ const AdminDashboard = () => {
         <img 
           src={adminHero} 
           alt="" 
-          className="w-full h-[120%] object-cover opacity-20"
+          className="w-full h-[120%] object-cover opacity-55"
           style={{ transform: `translateY(${parallaxOffset}px) scale(1.05)` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
