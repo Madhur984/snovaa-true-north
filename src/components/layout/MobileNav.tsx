@@ -41,7 +41,7 @@ export function MobileNav() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 top-[73px] z-50 bg-background/98 backdrop-blur-xl"
+            className="fixed inset-0 top-[73px] z-50 bg-[#faf9f6] overflow-y-auto"
           >
             <motion.nav
               className="flex flex-col items-center justify-center h-full pb-20"
