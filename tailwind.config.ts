@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Outfit", "system-ui", "sans-serif"],
+        sans: ["Source Sans 3", "Outfit", "system-ui", "sans-serif"],
         serif: ["Cormorant Garamond", "Georgia", "serif"],
+        display: ["Bebas Neue", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -51,6 +52,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Vibrant Design System Colors
+        brand: {
+          primary: "#7C3AED", // Violet 600
+          secondary: "#A78BFA", // Violet 400
+          cta: "#F97316", // Orange 500
+          dark: "#4C1D95", // Violet 900
+          light: "#FAF5FF", // Violet 50
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -61,7 +70,7 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Silent luxury semantic colors
+        // Silent luxury semantic colors (Keeping for compatibility but deprecating usage)
         display: "hsl(var(--text-display))",
         body: "hsl(var(--text-body))",
         subtle: "hsl(var(--text-subtle))",
