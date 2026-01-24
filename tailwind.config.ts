@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Source Sans 3", "Outfit", "system-ui", "sans-serif"],
+        sans: ["Jost", "Outfit", "system-ui", "sans-serif"],
         serif: ["Cormorant Garamond", "Georgia", "serif"],
-        display: ["Bebas Neue", "sans-serif"],
+        display: ["Bodoni Moda", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -52,13 +52,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Vibrant Design System Colors
+        // Minimalist B&W Design System Colors
         brand: {
-          primary: "#7C3AED", // Violet 600
-          secondary: "#A78BFA", // Violet 400
-          cta: "#F97316", // Orange 500
-          dark: "#4C1D95", // Violet 900
-          light: "#FAF5FF", // Violet 50
+          primary: "#000000", // Pure Black
+          secondary: "#1C1917", // Stone 900
+          cta: "#FFFFFF", // White (Inverted for contrast on black)
+          dark: "#000000", // Pure Black
+          light: "#FFFFFF", // White
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
