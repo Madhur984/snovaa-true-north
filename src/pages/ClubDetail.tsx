@@ -198,7 +198,7 @@ const ClubDetail = () => {
           <div className="flex gap-3">
             {isOrganizer && (
               <Button asChild variant="outline">
-                <Link to={`/clubs/${id}/manage`}>
+                <Link to={`/clubs/${id}/dashboard`}>
                   <Settings className="w-4 h-4 mr-2" />
                   Manage
                 </Link>

@@ -1,65 +1,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, Environment, Sphere, Torus, MeshDistortMaterial } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import { useRef, useMemo } from "react";
 import * as THREE from "three";
-
-const Bot = ({ position, scale = 1, speed = 1 }: { position: [number, number, number], scale?: number, speed?: number }) => {
-    const group = useRef<THREE.Group>(null);
-
-    useFrame((state) => {
-        if (group.current) {
-            // Very slow, heavy hover (Sileent style)
-            group.current.position.y += Math.sin(state.clock.elapsedTime * speed * 0.2) * 0.0005;
-
-            // Damped mouse interaction (Drift rather than react)
-            const targetX = (state.mouse.x * window.innerWidth) / 200; // Reduced sensitivity
-            const targetY = (state.mouse.y * window.innerHeight) / 200;
-
-            // Extremely slow lerp for 'heavy' feel
-            group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, targetY, 0.01);
-            group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, targetX, 0.01);
-        }
-    });
-
-    return (
-        <group ref={group} position={position} scale={scale}>
-            <Float speed={2 * speed} rotationIntensity={0.5} floatIntensity={1}>
-                {/* Head */}
-                <Sphere args={[0.5, 32, 32]} position={[0, 0.8, 0]}>
-                    <MeshDistortMaterial
-                        color="#1a1a1a"
-                        speed={2}
-                        distort={0.3}
-                        roughness={0.2}
-                        metalness={0.8}
-                    />
-                </Sphere>
-
-                {/* Ring */}
-                <Torus args={[0.7, 0.05, 16, 100]} position={[0, 0.8, 0]} rotation={[1.5, 0, 0]}>
-                    <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} toneMapped={false} />
-                </Torus>
-
-                {/* Body */}
-                <Sphere args={[0.7, 32, 32]} position={[0, -0.2, 0]}>
-                    <meshStandardMaterial
-                        color="#000000"
-                        roughness={0.1}
-                        metalness={0.9} // Shiny Black
-                    />
-                </Sphere>
-
-                {/* Floating Orb Ornaments */}
-                <Sphere args={[0.1, 16, 16]} position={[0.9, 0, 0]}>
-                    <meshStandardMaterial color="#ffffff" />
-                </Sphere>
-                <Sphere args={[0.1, 16, 16]} position={[-0.9, 0, 0]}>
-                    <meshStandardMaterial color="#ffffff" />
-                </Sphere>
-            </Float>
-        </group>
-    );
-};
 
 const Particles = ({ count = 50 }) => {
     const mesh = useRef<THREE.InstancedMesh>(null);
@@ -127,12 +69,6 @@ const FuturisticBackground = () => {
 
                 {/* Environment for reflections */}
                 <Environment preset="city" />
-
-                {/* 3D Bots */}
-                <Bot position={[-4, 2, -2]} scale={1.2} speed={0.8} />
-                <Bot position={[4, -2, -5]} scale={1.5} speed={1.2} />
-                <Bot position={[0, -5, -8]} scale={2} speed={0.5} />
-                <Bot position={[6, 5, -10]} scale={2.5} speed={0.7} />
 
                 {/* Floating Particles for atmosphere */}
                 <Particles count={80} />
