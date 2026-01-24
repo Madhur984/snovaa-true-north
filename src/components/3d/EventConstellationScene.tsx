@@ -327,7 +327,8 @@ function EventNode({
     const floatX = Math.cos(time * speed * 0.7 + pulsePhase.current) * 0.2;
 
     // Mouse repulsion effect
-    const mouseInfluence = 2.5;
+    // Mouse repulsion effect - dampened
+    const mouseInfluence = 0.5;
     const dx = (mousePos.current.x * 5) - originalPos.current[0];
     const dy = (mousePos.current.y * 3) - originalPos.current[1];
     const dist = Math.sqrt(dx * dx + dy * dy);
@@ -722,8 +723,9 @@ function Scene() {
   ], []);
 
   useFrame((state) => {
-    mousePos.current.x = state.pointer.x;
-    mousePos.current.y = state.pointer.y;
+    // Dampened mouse tracking
+    mousePos.current.x = THREE.MathUtils.lerp(mousePos.current.x, state.pointer.x, 0.05);
+    mousePos.current.y = THREE.MathUtils.lerp(mousePos.current.y, state.pointer.y, 0.05);
   });
 
   const handleNodeClick = useCallback((pos: [number, number, number], color: string) => {
