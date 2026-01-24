@@ -23,6 +23,11 @@ import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
 import ClubDashboard from "@/components/clubs/ClubDashboard";
 import ClubLayout from "@/components/clubs/ClubLayout";
+import ClubEvents from "@/components/clubs/ClubEvents";
+import ClubMembers from "@/components/clubs/ClubMembers";
+import ClubChat from "@/components/clubs/ClubChat";
+import ClubBroadcast from "@/components/clubs/ClubBroadcast";
+import ClubSettings from "@/components/clubs/ClubSettings";
 
 export function AnimatedRoutes() {
   const location = useLocation();
@@ -44,6 +49,11 @@ export function AnimatedRoutes() {
         <Route path="/clubs/create" element={<PageTransition><CreateClub /></PageTransition>} />
         <Route path="/clubs/:id" element={<PageTransition><ClubDetail /></PageTransition>} />
         <Route path="/clubs/:id/dashboard" element={<PageTransition><ClubLayout><ClubDashboard /></ClubLayout></PageTransition>} />
+        <Route path="/clubs/:id/events" element={<PageTransition><ClubLayout><ClubEvents /></ClubLayout></PageTransition>} />
+        <Route path="/clubs/:id/members" element={<PageTransition><ClubLayout><ClubMembers /></ClubLayout></PageTransition>} />
+        <Route path="/clubs/:id/chat" element={<PageTransition><ClubLayout><ClubChat /></ClubLayout></PageTransition>} />
+        <Route path="/clubs/:id/broadcast" element={<PageTransition><ClubLayout><ClubBroadcast /></ClubLayout></PageTransition>} />
+        <Route path="/clubs/:id/settings" element={<PageTransition><ClubLayout><ClubSettings /></ClubLayout></PageTransition>} />
         <Route path="/sponsor" element={<PageTransition><SponsorDashboard /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />
         <Route path="/map" element={<PageTransition><Map /></PageTransition>} />
