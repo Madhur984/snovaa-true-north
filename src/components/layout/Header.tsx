@@ -13,12 +13,12 @@ export const Header = () => {
   };
 
   return (
-    <header className="border-b border-hairline border-border/30 sticky top-0 bg-background/95 backdrop-blur-sm z-50">
-      <div className="container max-w-6xl py-6">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 glass">
+      <div className="container max-w-6xl py-4">
         <div className="flex items-center justify-between">
-          {/* Logo - Minimal, typographic */}
-          <Link to="/" className="group">
-            <span className="font-serif text-xl md:text-2xl font-light tracking-wider text-display">
+          {/* Logo - Futuristic, typographic */}
+          <Link to="/" className="group flex items-center gap-2">
+            <span className="font-sans text-xl md:text-2xl font-bold tracking-tight text-foreground transition-all duration-300 group-hover:tracking-widest">
               SNOVAA
             </span>
           </Link>
@@ -47,13 +47,13 @@ export const Header = () => {
               <AccountMenu label={profile?.display_name || "Account"} onSignOut={handleSignOut} />
             ) : (
               <>
-                <Link 
+                <Link
                   to="/login"
                   className="text-xs font-sans font-light tracking-luxury uppercase text-body hover:text-display link-underline transition-colors duration-500"
                 >
                   Sign In
                 </Link>
-                <Link 
+                <Link
                   to="/signup"
                   className="text-xs font-sans font-light tracking-luxury uppercase text-display border border-border/60 px-6 py-3 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-500"
                 >
