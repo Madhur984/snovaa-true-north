@@ -43,6 +43,10 @@
 
     --surface-elevated: 0 0% 100%;
     --surface-sunken: 0 0% 98%;
+
+    /* Animation Tokens */
+    --ease-luxury: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --duration-luxury: 1000ms;
   }
 
   .dark {
@@ -135,7 +139,7 @@
   }
 
   a {
-    @apply transition-colors duration-200;
+    transition: color var(--duration-luxury) var(--ease-luxury), opacity var(--duration-luxury) var(--ease-luxury);
   }
 }
 

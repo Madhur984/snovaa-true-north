@@ -8,13 +8,16 @@ const Bot = ({ position, scale = 1, speed = 1 }: { position: [number, number, nu
 
     useFrame((state) => {
         if (group.current) {
-            // Gentle hover
-            group.current.position.y += Math.sin(state.clock.elapsedTime * speed) * 0.002;
-            // Mouse interaction (lerp towards mouse slightly)
-            const x = (state.mouse.x * window.innerWidth) / 100;
-            const y = (state.mouse.y * window.innerHeight) / 100;
-            group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, y * 0.1, 0.1);
-            group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, x * 0.1, 0.1);
+            // Very slow, heavy hover (Sileent style)
+            group.current.position.y += Math.sin(state.clock.elapsedTime * speed * 0.2) * 0.0005;
+
+            // Damped mouse interaction (Drift rather than react)
+            const targetX = (state.mouse.x * window.innerWidth) / 200; // Reduced sensitivity
+            const targetY = (state.mouse.y * window.innerHeight) / 200;
+
+            // Extremely slow lerp for 'heavy' feel
+            group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, targetY, 0.01);
+            group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, targetX, 0.01);
         }
     });
 

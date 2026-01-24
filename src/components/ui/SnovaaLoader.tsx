@@ -5,11 +5,11 @@ export const SnovaaLoader = ({ onComplete }: { onComplete?: () => void }) => {
     const [isVisible, setIsVisible] = useState(true);
 
     useEffect(() => {
-        // Simulate loading time for the "Beast" reveal
+        // Slow, cinematic reveal (Sileent style)
         const timer = setTimeout(() => {
             setIsVisible(false);
             if (onComplete) onComplete();
-        }, 2500); // 2.5s introduction
+        }, 3500); // 3.5s calm introduction
 
         return () => clearTimeout(timer);
     }, [onComplete]);
