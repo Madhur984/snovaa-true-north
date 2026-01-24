@@ -28,6 +28,7 @@ import ClubMembers from "@/components/clubs/ClubMembers";
 import ClubChat from "@/components/clubs/ClubChat";
 import ClubBroadcast from "@/components/clubs/ClubBroadcast";
 import ClubSettings from "@/components/clubs/ClubSettings";
+import LiveEvent from "@/pages/LiveEvent";
 
 export function AnimatedRoutes() {
   const location = useLocation();
@@ -43,6 +44,7 @@ export function AnimatedRoutes() {
         <Route path="/events/create" element={<PageTransition><CreateEvent /></PageTransition>} />
         <Route path="/events/:id" element={<PageTransition><EventDetail /></PageTransition>} />
         <Route path="/events/:id/manage" element={<PageTransition><ManageEvent /></PageTransition>} />
+        <Route path="/events/:id/live" element={<PageTransition><LiveEvent /></PageTransition>} />
         <Route path="/events/:id/checkin" element={<PageTransition><CheckIn /></PageTransition>} />
         <Route path="/my-events" element={<PageTransition><MyEvents /></PageTransition>} />
         <Route path="/clubs" element={<PageTransition><Clubs /></PageTransition>} />

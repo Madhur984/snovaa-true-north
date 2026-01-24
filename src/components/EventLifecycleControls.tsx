@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +61,7 @@ const TRANSITION_INFO: Record<string, { icon: React.ElementType; description: st
 
 export function EventLifecycleControls({ eventId, currentStatus, onStatusChange }: EventLifecycleControlsProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [transitioning, setTransitioning] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState("");
 
@@ -86,6 +89,11 @@ export function EventLifecycleControls({ eventId, currentStatus, onStatusChange 
         description: `Event is now ${newStatus}.`,
       });
       onStatusChange(newStatus);
+
+      // Redirect to live page if event went live
+      if (newStatus === "live") {
+        navigate(`/events/${eventId}/live`);
+      }
     }
 
     setTransitioning(null);
@@ -134,8 +142,8 @@ export function EventLifecycleControls({ eventId, currentStatus, onStatusChange 
                   status === currentStatus
                     ? "default"
                     : Object.keys(STATUS_FLOW).indexOf(currentStatus) > index
-                    ? "outline"
-                    : "secondary"
+                      ? "outline"
+                      : "secondary"
                 }
                 className={status === currentStatus ? "ring-2 ring-primary ring-offset-2" : "opacity-60"}
               >
