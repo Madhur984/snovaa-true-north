@@ -1,16 +1,54 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useParams } from "react-router-dom";
 import { Users, Calendar, MessageSquare, Shield, Activity, Radio, LayoutDashboard } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 
-const ClubLayout = () => {
+const ClubLayout = ({ children }: { children?: React.ReactNode }) => {
+    const { id } = useParams<{ id: string }>();
     const location = useLocation();
-    const role = "owner"; // TODO: Mock role for development
+    const { profile } = useAuth();
+    const [role, setRole] = useState<"owner" | "member" | "guest">("guest");
+
+    useEffect(() => {
+        if (id && profile) {
+            checkRole();
+        }
+    }, [id, profile]);
+
+    const checkRole = async () => {
+        // Check if organizer
+        const { data: orgData } = await supabase
+            .from("club_organizers")
+            .select("role")
+            .eq("club_id", id)
+            .eq("profile_id", profile?.id)
+            .maybeSingle();
+
+        if (orgData) {
+            setRole("owner"); // Simplified for now, map orgData.role if needed
+            return;
+        }
+
+        // Check if member
+        const { data: memberData } = await supabase
+            .from("club_members")
+            .select("id")
+            .eq("club_id", id)
+            .eq("profile_id", profile?.id)
+            .maybeSingle();
+
+        if (memberData) {
+            setRole("member");
+        }
+    };
 
     const navItems = [
-        { icon: LayoutDashboard, label: "Overview", path: "" },
+        { icon: LayoutDashboard, label: "Overview", path: "/dashboard" },
         { icon: Calendar, label: "Events", path: "/events" },
         { icon: Users, label: "Members", path: "/members" },
-        { icon: MessageSquare, label: "Comms", path: "/chat", locked: true }, // Locked for Phase 1
+        { icon: MessageSquare, label: "Comms", path: "/chat", locked: false }, // Unlocked for Phase 2 implementation
     ];
 
     const adminItems = [
@@ -34,10 +72,10 @@ const ClubLayout = () => {
                             {navItems.map((item) => (
                                 <Link
                                     key={item.label}
-                                    to={`/clubs/founders${item.path}`}
-                                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 group ${location.pathname === `/clubs/founders${item.path}`
-                                            ? "bg-white/10 text-cyan-400 border-l-2 border-cyan-400"
-                                            : "text-white/60 hover:text-white"
+                                    to={`/clubs/${id}${item.path}`}
+                                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 group ${location.pathname === `/clubs/${id}${item.path}`
+                                        ? "bg-white/10 text-cyan-400 border-l-2 border-cyan-400"
+                                        : "text-white/60 hover:text-white"
                                         }`}
                                 >
                                     <item.icon className="w-4 h-4" />
@@ -55,10 +93,10 @@ const ClubLayout = () => {
                                 {adminItems.map((item) => (
                                     <Link
                                         key={item.label}
-                                        to={`/clubs/founders${item.path}`}
-                                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 group ${location.pathname === `/clubs/founders${item.path}`
-                                                ? "bg-white/10 text-amber-400 border-l-2 border-amber-400"
-                                                : "text-white/60 hover:text-white"
+                                        to={`/clubs/${id}${item.path}`}
+                                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 group ${location.pathname === `/clubs/${id}${item.path}`
+                                            ? "bg-white/10 text-amber-400 border-l-2 border-amber-400"
+                                            : "text-white/60 hover:text-white"
                                             }`}
                                     >
                                         <item.icon className="w-4 h-4" />
@@ -83,7 +121,7 @@ const ClubLayout = () => {
 
             {/* Main Content Area */}
             <main className="md:ml-64 min-h-screen bg-[url('/grid.svg')] bg-fixed">
-                <Outlet />
+                {children || <Outlet />}
             </main>
         </div>
     );

@@ -64,8 +64,18 @@ const CheckIn = () => {
     if (data) {
       // Group by participant and get latest status
       const participantMap = new Map<string, Participant>();
-      
-      data.forEach((record: any) => {
+
+      interface LedgerRecord {
+        id: string;
+        participant_id: string;
+        action: string;
+        recorded_at: string;
+        profile: {
+          display_name: string;
+        } | null;
+      }
+
+      (data as unknown as LedgerRecord[]).forEach((record) => {
         if (!participantMap.has(record.participant_id)) {
           participantMap.set(record.participant_id, {
             id: record.id,
@@ -172,8 +182,8 @@ const CheckIn = () => {
                 event?.status === "live"
                   ? "destructive"
                   : event?.status === "published"
-                  ? "default"
-                  : "secondary"
+                    ? "default"
+                    : "secondary"
               }
             >
               {event?.status}
@@ -276,8 +286,8 @@ const CheckIn = () => {
                             participant.latest_action === "attended"
                               ? "default"
                               : participant.latest_action === "cancelled"
-                              ? "destructive"
-                              : "secondary"
+                                ? "destructive"
+                                : "secondary"
                           }
                           className="text-xs"
                         >

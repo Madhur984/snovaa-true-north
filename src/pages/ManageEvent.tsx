@@ -118,7 +118,17 @@ const ManageEvent = () => {
 
     if (data) {
       const latestByParticipant = new Map<string, Participant>();
-      data.forEach((record: any) => {
+      interface LedgerRecord {
+        participant_id: string;
+        action: string;
+        recorded_at: string;
+        profiles: {
+          display_name: string;
+          email: string | null;
+        } | null;
+      }
+
+      (data as unknown as LedgerRecord[]).forEach((record) => {
         if (!latestByParticipant.has(record.participant_id)) {
           latestByParticipant.set(record.participant_id, {
             id: record.participant_id,
@@ -412,7 +422,7 @@ const ManageEvent = () => {
                           <Badge
                             variant={
                               participant.status === "attended" ? "default" :
-                              participant.status === "cancelled" ? "destructive" : "secondary"
+                                participant.status === "cancelled" ? "destructive" : "secondary"
                             }
                           >
                             {participant.status}

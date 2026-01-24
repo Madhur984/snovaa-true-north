@@ -41,7 +41,7 @@ const ClubDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { profile } = useAuth();
   const { toast } = useToast();
-  
+
   const [club, setClub] = useState<Club | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
@@ -93,7 +93,7 @@ const ClubDetail = () => {
       setOrganizers(data as unknown as Organizer[]);
       // Check if current user is an organizer
       if (profile) {
-        setIsOrganizer(data.some((o: any) => o.profile?.id === profile.id));
+        setIsOrganizer(data.some((o: Organizer) => o.profile?.id === profile.id));
       }
     }
   };
@@ -312,8 +312,8 @@ const ClubDetail = () => {
                               event.status === "published"
                                 ? "default"
                                 : event.status === "live"
-                                ? "destructive"
-                                : "secondary"
+                                  ? "destructive"
+                                  : "secondary"
                             }
                           >
                             {event.status}

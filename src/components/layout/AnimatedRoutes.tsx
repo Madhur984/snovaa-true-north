@@ -21,6 +21,8 @@ import Map from "@/pages/Map";
 import Philosophy from "@/pages/Philosophy";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
+import ClubDashboard from "@/components/clubs/ClubDashboard";
+import ClubLayout from "@/components/clubs/ClubLayout";
 
 export function AnimatedRoutes() {
   const location = useLocation();
@@ -41,6 +43,7 @@ export function AnimatedRoutes() {
         <Route path="/clubs" element={<PageTransition><Clubs /></PageTransition>} />
         <Route path="/clubs/create" element={<PageTransition><CreateClub /></PageTransition>} />
         <Route path="/clubs/:id" element={<PageTransition><ClubDetail /></PageTransition>} />
+        <Route path="/clubs/:id/dashboard" element={<PageTransition><ClubLayout><ClubDashboard /></ClubLayout></PageTransition>} />
         <Route path="/sponsor" element={<PageTransition><SponsorDashboard /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />
         <Route path="/map" element={<PageTransition><Map /></PageTransition>} />
