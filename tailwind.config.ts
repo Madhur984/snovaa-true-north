@@ -125,6 +125,22 @@ export default {
           from: { opacity: "0", transform: "translateY(100%)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        // Futuristic / Glitch Animations
+        "glitch-skew": {
+          "0%, 100%": { transform: "skew(0deg)" },
+          "20%": { transform: "skew(-2deg)" },
+          "40%": { transform: "skew(2deg)" },
+          "60%": { transform: "skew(-1deg)" },
+          "80%": { transform: "skew(1deg)" },
+        },
+        "scanline": {
+          "0%": { transform: "translateY(-100%)" },
+          "100%": { transform: "translateY(100%)" },
+        },
+        "cyber-pulse": {
+          "0%, 100%": { opacity: "1", filter: "brightness(1)" },
+          "50%": { opacity: "0.8", filter: "brightness(1.5)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.3s ease-out",
@@ -133,6 +149,9 @@ export default {
         "fade-in-slow": "fade-in-slow 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
         "slide-up": "slide-up 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
         "reveal-text": "reveal-text 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
+        "glitch": "glitch-skew 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite",
+        "scanline": "scanline 8s linear infinite",
+        "cyber-pulse": "cyber-pulse 2s ease-in-out infinite",
       },
       spacing: {
         "18": "4.5rem",

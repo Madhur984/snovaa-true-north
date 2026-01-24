@@ -107,15 +107,18 @@ export const QRScanner = ({ eventId, onScan, isProcessing }: QRScannerProps) => 
 
     // Use BarcodeDetector if available (modern browsers)
     if ("BarcodeDetector" in window) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
       detector
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .detect(imageData)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .then((barcodes: any[]) => {
           if (barcodes.length > 0 && !isProcessing) {
             processQRCode(barcodes[0].rawValue);
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     animationRef.current = requestAnimationFrame(scanFrame);

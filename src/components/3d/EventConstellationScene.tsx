@@ -11,19 +11,19 @@ const easeOutElastic = (t: number) => {
 };
 
 // Glowing halo effect around nodes
-function GlowHalo({ position, color, scale }: { 
-  position: [number, number, number]; 
+function GlowHalo({ position, color, scale }: {
+  position: [number, number, number];
   color: string;
   scale: number;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  
+
   useFrame((state) => {
     if (!meshRef.current) return;
     const time = state.clock.elapsedTime;
     const pulse = 1 + Math.sin(time * 2) * 0.15;
     meshRef.current.scale.setScalar(scale * pulse * 2.5);
-    // @ts-ignore
+    // @ts-expect-error ThreeJS material property access dynamic
     if (meshRef.current.material) {
       (meshRef.current.material as THREE.MeshBasicMaterial).opacity = 0.15 + Math.sin(time * 1.5) * 0.05;
     }
@@ -51,15 +51,15 @@ function EnergyWave({ delay = 0 }: { delay?: number }) {
 
   useFrame(() => {
     if (!ringRef.current) return;
-    
+
     const elapsed = (Date.now() - startTime.current) % duration;
     const progress = elapsed / duration;
     const easedProgress = easeOutExpo(progress);
-    
+
     const scale = 1 + easedProgress * 8;
     ringRef.current.scale.setScalar(scale);
-    
-    // @ts-ignore
+
+    // @ts-expect-error ThreeJS material property access dynamic
     if (ringRef.current.material) {
       (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - progress) * 0.2;
     }
@@ -80,12 +80,12 @@ function EnergyWave({ delay = 0 }: { delay?: number }) {
 }
 
 // Click ripple effect - expanding ring that fades out with enhanced visuals
-function ClickRipple({ 
-  position, 
-  color, 
-  onComplete 
-}: { 
-  position: [number, number, number]; 
+function ClickRipple({
+  position,
+  color,
+  onComplete
+}: {
+  position: [number, number, number];
   color: string;
   onComplete: () => void;
 }) {
@@ -96,32 +96,32 @@ function ClickRipple({
 
   useFrame(() => {
     if (!ringRef.current || !ring2Ref.current) return;
-    
+
     const elapsed = Date.now() - startTime.current;
     const progress = Math.min(elapsed / duration, 1);
     const easedProgress = easeOutExpo(progress);
-    
+
     // Primary ring
     const scale1 = 0.3 + easedProgress * 4;
     ringRef.current.scale.setScalar(scale1);
     ringRef.current.rotation.z = progress * Math.PI * 0.5;
-    
+
     // Secondary ring (delayed)
     const progress2 = Math.max(0, (elapsed - 100) / duration);
     const easedProgress2 = easeOutExpo(Math.min(progress2, 1));
     const scale2 = 0.2 + easedProgress2 * 3;
     ring2Ref.current.scale.setScalar(scale2);
     ring2Ref.current.rotation.z = -progress2 * Math.PI * 0.3;
-    
-    // @ts-ignore
+
+    // @ts-expect-error ThreeJS material property access dynamic
     if (ringRef.current.material) {
       (ringRef.current.material as THREE.MeshStandardMaterial).opacity = (1 - progress) * 1.5;
     }
-    // @ts-ignore
+    // @ts-expect-error ThreeJS material property access dynamic
     if (ring2Ref.current.material) {
       (ring2Ref.current.material as THREE.MeshStandardMaterial).opacity = (1 - progress2) * 0.8;
     }
-    
+
     if (progress >= 1) {
       onComplete();
     }
@@ -156,13 +156,13 @@ function ClickRipple({
 }
 
 // Burst particle - spawned on click
-function BurstParticle({ 
-  startPosition, 
-  velocity, 
+function BurstParticle({
+  startPosition,
+  velocity,
   color,
-  onComplete 
-}: { 
-  startPosition: [number, number, number]; 
+  onComplete
+}: {
+  startPosition: [number, number, number];
   velocity: [number, number, number];
   color: string;
   onComplete: () => void;
@@ -175,11 +175,11 @@ function BurstParticle({
 
   useFrame(() => {
     if (!meshRef.current) return;
-    
+
     const elapsed = Date.now() - startTime.current;
     const progress = Math.min(elapsed / duration, 1);
     const easedProgress = easeOutExpo(progress);
-    
+
     // Physics with air resistance
     const gravity = -2.5;
     const drag = 0.98;
@@ -187,24 +187,24 @@ function BurstParticle({
     pos.current[0] = startPosition[0] + velocity[0] * t * drag;
     pos.current[1] = startPosition[1] + velocity[1] * t * drag + 0.5 * gravity * t * t;
     pos.current[2] = startPosition[2] + velocity[2] * t * drag;
-    
+
     meshRef.current.position.set(pos.current[0], pos.current[1], pos.current[2]);
-    
+
     // Spin while falling
     meshRef.current.rotation.x = rotation.current[0] + progress * 8;
     meshRef.current.rotation.y = rotation.current[1] + progress * 6;
-    
+
     // Scale with bounce
-    const bounceScale = progress < 0.2 
+    const bounceScale = progress < 0.2
       ? easeOutElastic(progress * 5) * 0.2
       : (1 - progress) * 0.18;
     meshRef.current.scale.setScalar(bounceScale);
-    
-    // @ts-ignore
+
+    // @ts-expect-error ThreeJS material property access dynamic
     if (meshRef.current.material) {
       (meshRef.current.material as THREE.MeshStandardMaterial).opacity = 1 - progress * 0.7;
     }
-    
+
     if (progress >= 1) {
       onComplete();
     }
@@ -239,7 +239,7 @@ function useClickEffects() {
 
   const spawnEffects = useCallback((position: [number, number, number], color: string) => {
     const newEffects: ClickEffect[] = [];
-    
+
     // Add ripple
     newEffects.push({
       id: idCounter.current++,
@@ -247,14 +247,14 @@ function useClickEffects() {
       position: [...position] as [number, number, number],
       color,
     });
-    
+
     // Add burst particles (8-12 particles)
     const particleCount = 8 + Math.floor(Math.random() * 5);
     for (let i = 0; i < particleCount; i++) {
       const angle = (i / particleCount) * Math.PI * 2 + Math.random() * 0.5;
       const speed = 1.5 + Math.random() * 2;
       const upward = 1.5 + Math.random() * 2;
-      
+
       newEffects.push({
         id: idCounter.current++,
         type: 'particle',
@@ -267,7 +267,7 @@ function useClickEffects() {
         ],
       });
     }
-    
+
     setEffects(prev => [...prev, ...newEffects]);
   }, []);
 
@@ -279,16 +279,16 @@ function useClickEffects() {
 }
 
 // Event node - represents a floating event orb with click interaction
-function EventNode({ 
-  position, 
-  scale, 
-  color, 
+function EventNode({
+  position,
+  scale,
+  color,
   speed,
   mousePos,
   onNodeClick
-}: { 
-  position: [number, number, number]; 
-  scale: number; 
+}: {
+  position: [number, number, number];
+  scale: number;
   color: string;
   speed: number;
   mousePos: React.MutableRefObject<{ x: number; y: number }>;
@@ -303,49 +303,49 @@ function EventNode({
 
   const handleClick = useCallback(() => {
     if (!meshRef.current) return;
-    
+
     setClicked(true);
     clickTime.current = Date.now();
-    
+
     // Get current world position
     const worldPos: [number, number, number] = [
       meshRef.current.position.x,
       meshRef.current.position.y,
       meshRef.current.position.z,
     ];
-    
+
     onNodeClick(worldPos, color);
   }, [color, onNodeClick]);
 
   useFrame((state) => {
     if (!meshRef.current) return;
-    
+
     const time = state.clock.elapsedTime;
-    
+
     // Base floating motion
     const floatY = Math.sin(time * speed + pulsePhase.current) * 0.3;
     const floatX = Math.cos(time * speed * 0.7 + pulsePhase.current) * 0.2;
-    
+
     // Mouse repulsion effect
     const mouseInfluence = 2.5;
     const dx = (mousePos.current.x * 5) - originalPos.current[0];
     const dy = (mousePos.current.y * 3) - originalPos.current[1];
     const dist = Math.sqrt(dx * dx + dy * dy);
     const repelStrength = Math.max(0, 1 - dist / 4) * mouseInfluence;
-    
+
     meshRef.current.position.x = originalPos.current[0] + floatX - (dx / dist) * repelStrength * (dist < 4 ? 1 : 0);
     meshRef.current.position.y = originalPos.current[1] + floatY - (dy / dist) * repelStrength * (dist < 4 ? 1 : 0);
-    
+
     // Click bounce effect
     const clickElapsed = Date.now() - clickTime.current;
-    const clickBounce = clicked && clickElapsed < 300 
-      ? Math.sin((clickElapsed / 300) * Math.PI) * 0.3 
+    const clickBounce = clicked && clickElapsed < 300
+      ? Math.sin((clickElapsed / 300) * Math.PI) * 0.3
       : 0;
-    
+
     if (clicked && clickElapsed > 300) {
       setClicked(false);
     }
-    
+
     // Pulse scale on hover + click bounce
     const baseScale = clicked ? scale * 1.6 : (hovered ? scale * 1.4 : scale);
     const pulseScale = 1 + Math.sin(time * 3) * (hovered ? 0.1 : 0.02) + clickBounce;
@@ -377,7 +377,7 @@ function EventNode({
 // Connection lines between nodes
 function ConnectionLines({ nodes }: { nodes: Array<{ position: [number, number, number] }> }) {
   const lineRef = useRef<THREE.Group>(null);
-  
+
   const connections = useMemo(() => {
     const lines: Array<{ start: [number, number, number]; end: [number, number, number] }> = [];
     for (let i = 0; i < nodes.length; i++) {
@@ -418,7 +418,7 @@ function ConnectionLines({ nodes }: { nodes: Array<{ position: [number, number, 
 }
 
 // Animated orbital ring system - replaces static calendar
-function OrbitalRings({ position, mousePos }: { 
+function OrbitalRings({ position, mousePos }: {
   position: [number, number, number];
   mousePos: React.MutableRefObject<{ x: number; y: number }>;
 }) {
@@ -427,16 +427,16 @@ function OrbitalRings({ position, mousePos }: {
   const ring2Ref = useRef<THREE.Mesh>(null);
   const ring3Ref = useRef<THREE.Mesh>(null);
   const coreRef = useRef<THREE.Mesh>(null);
-  
+
   useFrame((state) => {
     if (!groupRef.current) return;
     const time = state.clock.elapsedTime;
-    
+
     // React to mouse
     groupRef.current.rotation.y = mousePos.current.x * 0.4 + time * 0.1;
     groupRef.current.rotation.x = -mousePos.current.y * 0.3;
     groupRef.current.position.y = position[1] + Math.sin(time * 0.5) * 0.15;
-    
+
     // Animate rings
     if (ring1Ref.current) {
       ring1Ref.current.rotation.x = time * 0.5;
@@ -450,7 +450,7 @@ function OrbitalRings({ position, mousePos }: {
       ring3Ref.current.rotation.z = time * 0.6;
       ring3Ref.current.rotation.y = time * 0.25;
     }
-    
+
     // Pulsing core
     if (coreRef.current) {
       const pulse = 1 + Math.sin(time * 2) * 0.15;
@@ -464,7 +464,7 @@ function OrbitalRings({ position, mousePos }: {
         {/* Glowing core */}
         <mesh ref={coreRef}>
           <icosahedronGeometry args={[1, 2]} />
-          <meshStandardMaterial 
+          <meshStandardMaterial
             color="#5599AA"
             emissive="#5599AA"
             emissiveIntensity={1.5}
@@ -474,11 +474,11 @@ function OrbitalRings({ position, mousePos }: {
             opacity={0.9}
           />
         </mesh>
-        
+
         {/* Orbital ring 1 */}
         <mesh ref={ring1Ref}>
           <torusGeometry args={[0.6, 0.015, 16, 64]} />
-          <meshStandardMaterial 
+          <meshStandardMaterial
             color="#88CCCC"
             emissive="#88CCCC"
             emissiveIntensity={0.8}
@@ -486,11 +486,11 @@ function OrbitalRings({ position, mousePos }: {
             roughness={0.1}
           />
         </mesh>
-        
+
         {/* Orbital ring 2 */}
         <mesh ref={ring2Ref} rotation={[Math.PI / 3, 0, 0]}>
           <torusGeometry args={[0.8, 0.012, 16, 64]} />
-          <meshStandardMaterial 
+          <meshStandardMaterial
             color="#5599AA"
             emissive="#5599AA"
             emissiveIntensity={0.6}
@@ -500,11 +500,11 @@ function OrbitalRings({ position, mousePos }: {
             opacity={0.8}
           />
         </mesh>
-        
+
         {/* Orbital ring 3 */}
         <mesh ref={ring3Ref} rotation={[Math.PI / 2, Math.PI / 4, 0]}>
           <torusGeometry args={[1, 0.01, 16, 64]} />
-          <meshStandardMaterial 
+          <meshStandardMaterial
             color="#3D7A7A"
             emissive="#5599AA"
             emissiveIntensity={0.4}
@@ -514,7 +514,7 @@ function OrbitalRings({ position, mousePos }: {
             opacity={0.6}
           />
         </mesh>
-        
+
         {/* Orbiting dots */}
         {[0, 1, 2, 3, 4, 5].map((i) => (
           <OrbitingDot key={i} index={i} />
@@ -530,23 +530,23 @@ function OrbitingDot({ index }: { index: number }) {
   const radius = 0.5 + (index % 3) * 0.25;
   const speed = 1 + index * 0.3;
   const offset = (index / 6) * Math.PI * 2;
-  
+
   useFrame((state) => {
     if (!meshRef.current) return;
     const time = state.clock.elapsedTime * speed + offset;
-    
+
     meshRef.current.position.x = Math.cos(time) * radius;
     meshRef.current.position.y = Math.sin(time * 1.3) * radius * 0.5;
     meshRef.current.position.z = Math.sin(time) * radius * 0.8;
-    
+
     const pulse = 1 + Math.sin(time * 3) * 0.3;
     meshRef.current.scale.setScalar(0.03 * pulse);
   });
-  
+
   return (
     <mesh ref={meshRef}>
       <sphereGeometry args={[1, 8, 8]} />
-      <meshStandardMaterial 
+      <meshStandardMaterial
         color="#88CCCC"
         emissive="#88CCCC"
         emissiveIntensity={2}
@@ -556,7 +556,7 @@ function OrbitingDot({ index }: { index: number }) {
 }
 
 // DNA-like helix animation
-function HelixStructure({ mousePos }: { 
+function HelixStructure({ mousePos }: {
   mousePos: React.MutableRefObject<{ x: number; y: number }>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
@@ -572,7 +572,7 @@ function HelixStructure({ mousePos }: {
   useFrame((state) => {
     if (!groupRef.current) return;
     const time = state.clock.elapsedTime;
-    
+
     groupRef.current.rotation.y = time * 0.2 + mousePos.current.x * 0.3;
     groupRef.current.rotation.x = mousePos.current.y * 0.1;
     groupRef.current.position.y = Math.sin(time * 0.4) * 0.2;
@@ -590,26 +590,26 @@ function HelixStructure({ mousePos }: {
 function HelixNode({ index, offset, strand }: { index: number; offset: number; strand: number }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const baseY = (index / 2 - 6) * 0.3;
-  
+
   useFrame((state) => {
     if (!meshRef.current) return;
     const time = state.clock.elapsedTime;
-    
+
     const angle = time * 0.8 + offset;
     const radius = 1.2;
-    
+
     meshRef.current.position.x = Math.cos(angle) * radius;
     meshRef.current.position.z = Math.sin(angle) * radius;
     meshRef.current.position.y = baseY;
-    
+
     const pulse = 1 + Math.sin(time * 2 + index * 0.2) * 0.2;
     meshRef.current.scale.setScalar(0.06 * pulse);
   });
-  
+
   return (
     <mesh ref={meshRef}>
       <sphereGeometry args={[1, 12, 12]} />
-      <meshStandardMaterial 
+      <meshStandardMaterial
         color={strand === 0 ? "#5599AA" : "#88CCCC"}
         emissive={strand === 0 ? "#5599AA" : "#88CCCC"}
         emissiveIntensity={1.2}
@@ -621,9 +621,9 @@ function HelixNode({ index, offset, strand }: { index: number; offset: number; s
 }
 
 // Orbiting particle trail
-function OrbitingParticle({ radius, speed, offset, mousePos }: { 
-  radius: number; 
-  speed: number; 
+function OrbitingParticle({ radius, speed, offset, mousePos }: {
+  radius: number;
+  speed: number;
   offset: number;
   mousePos: React.MutableRefObject<{ x: number; y: number }>;
 }) {
@@ -632,7 +632,7 @@ function OrbitingParticle({ radius, speed, offset, mousePos }: {
   useFrame((state) => {
     if (!meshRef.current) return;
     const time = state.clock.elapsedTime * speed + offset;
-    
+
     // Orbital motion with mouse influence
     const mouseInfluence = 0.5;
     meshRef.current.position.x = Math.cos(time) * radius + mousePos.current.x * mouseInfluence;
@@ -660,12 +660,12 @@ function OrbitingParticle({ radius, speed, offset, mousePos }: {
 }
 
 // Ambient particles
-function AmbientParticles({ count, mousePos }: { 
+function AmbientParticles({ count, mousePos }: {
   count: number;
   mousePos: React.MutableRefObject<{ x: number; y: number }>;
 }) {
   const pointsRef = useRef<THREE.Points>(null);
-  
+
   const particles = useMemo(() => {
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -678,7 +678,7 @@ function AmbientParticles({ count, mousePos }: {
 
   useFrame((state) => {
     if (!pointsRef.current) return;
-    
+
     const time = state.clock.elapsedTime;
     pointsRef.current.rotation.y = time * 0.02 + mousePos.current.x * 0.1;
     pointsRef.current.rotation.x = mousePos.current.y * 0.05;
@@ -748,7 +748,7 @@ function Scene() {
       ))}
 
       {/* Click effects */}
-      {effects.map((effect) => 
+      {effects.map((effect) =>
         effect.type === 'ripple' ? (
           <ClickRipple
             key={effect.id}

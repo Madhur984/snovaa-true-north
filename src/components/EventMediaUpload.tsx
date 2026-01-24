@@ -35,6 +35,7 @@ export const EventMediaUpload = ({ eventId, isOrganizer, onMediaChange }: EventM
 
   useEffect(() => {
     fetchMedia();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId]);
 
   const fetchMedia = async () => {
@@ -60,7 +61,7 @@ export const EventMediaUpload = ({ eventId, isOrganizer, onMediaChange }: EventM
       // Validate file type
       const isImage = file.type.startsWith("image/");
       const isVideo = file.type.startsWith("video/");
-      
+
       if (!isImage && !isVideo) {
         toast({
           title: "Invalid file type",
@@ -109,6 +110,7 @@ export const EventMediaUpload = ({ eventId, isOrganizer, onMediaChange }: EventM
 
         fetchMedia();
         onMediaChange?.();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         toast({
           title: "Upload failed",

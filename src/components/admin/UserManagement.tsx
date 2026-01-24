@@ -65,6 +65,7 @@ export const UserManagement = () => {
 
   useEffect(() => {
     filterUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [users, search, roleFilter]);
 
   const fetchUsers = async () => {
@@ -81,12 +82,12 @@ export const UserManagement = () => {
 
     if (profiles) {
       setUsers(profiles);
-      
+
       // Fetch roles for all users
       const { data: roles } = await supabase
         .from("user_roles")
         .select("user_id, role");
-      
+
       if (roles) {
         const rolesMap: Record<string, UserRole[]> = {};
         roles.forEach((r) => {
@@ -103,7 +104,7 @@ export const UserManagement = () => {
 
   const filterUsers = () => {
     let filtered = [...users];
-    
+
     if (search) {
       const searchLower = search.toLowerCase();
       filtered = filtered.filter(
@@ -112,11 +113,11 @@ export const UserManagement = () => {
           u.email?.toLowerCase().includes(searchLower)
       );
     }
-    
+
     if (roleFilter !== "all") {
       filtered = filtered.filter((u) => u.role === roleFilter);
     }
-    
+
     setFilteredUsers(filtered);
     setCurrentPage(1);
   };
