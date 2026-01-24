@@ -102,6 +102,23 @@ const ClubDashboard = () => {
         return <div className="p-8 text-white/50 font-mono">LOADING SYSTEM...</div>;
     }
 
+    const handleBroadcast = async () => {
+        const { data, error } = await supabase.rpc("broadcast_to_members", {
+            p_club_id: id,
+            p_title: "HEADS UP // CLUB SIGNAL",
+            p_message: "Important update from club command.",
+            p_type: "alert"
+        });
+
+        if (error) {
+            console.error("Broadcast failed:", error);
+            // In a real app add a Toast here
+        } else {
+            console.log("Broadcast success:", data);
+            // Toast success
+        }
+    };
+
     return (
         <div className="p-8 space-y-8">
             {/* Header */}
@@ -121,7 +138,13 @@ const ClubDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Widget title="Total Personnel" value={stats.members.toString()} sub="Verified Members" icon={Users} delay={0.1} />
                 <Widget title="Active Events" value={stats.activeEvents.toString().padStart(2, '0')} sub="Upcoming / Live" icon={Calendar} delay={0.2} />
-                <Widget title="Engagement" value={`${stats.engagement}%`} sub="Optimal Levels" icon={Zap} delay={0.3} />
+                <Widget
+                    title="Engagement"
+                    value={stats.members > 0 ? `${Math.round((stats.engagement / stats.members) * 100)}%` : "0%"}
+                    sub="Active Ratio"
+                    icon={Zap}
+                    delay={0.3}
+                />
             </div>
 
             {/* Main Panel */}
@@ -160,7 +183,10 @@ const ClubDashboard = () => {
                             <span className="text-sm font-bold block group-hover:text-cyan-400">INITIALIZE EVENT</span>
                             <span className="text-xs text-white/40">Create new gathering node</span>
                         </Link>
-                        <button className="w-full text-left p-4 bg-white/5 hover:bg-amber-500/20 border border-white/10 rounded-lg transition-all group">
+                        <button
+                            onClick={handleBroadcast}
+                            className="w-full text-left p-4 bg-white/5 hover:bg-amber-500/20 border border-white/10 rounded-lg transition-all group"
+                        >
                             <span className="text-sm font-bold block group-hover:text-amber-400">BROADCAST SIGNAL</span>
                             <span className="text-xs text-white/40">Send alert to all personnel</span>
                         </button>
