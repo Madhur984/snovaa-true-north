@@ -66,7 +66,8 @@ const LiveEvent = () => {
 
         if (!error && data) {
             setEvent(data as Event);
-            if (data.status !== "live") {
+            // Allow 'published' status as a fallback if DB migration hasn't been applied
+            if (data.status !== "live" && data.status !== "published") {
                 toast({
                     title: "Event Not Live",
                     description: "This event is not currently live",
