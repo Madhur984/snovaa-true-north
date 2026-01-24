@@ -15,7 +15,6 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import QRCode from "qrcode";
 
 interface Event {
     id: string;
@@ -24,7 +23,7 @@ interface Event {
     event_date: string;
     start_time: string;
     status: string;
-    live_started_at: string | null;
+    live_started_at?: string | null;
 }
 
 interface CheckIn {
@@ -112,17 +111,11 @@ const LiveEvent = () => {
         }
     };
 
-    const generateQRCode = async () => {
+    const generateQRCode = () => {
         const checkInUrl = `${window.location.origin}/events/${id}/checkin`;
-        const qrDataUrl = await QRCode.toDataURL(checkInUrl, {
-            width: 400,
-            margin: 2,
-            color: {
-                dark: "#000000",
-                light: "#FFFFFF",
-            },
-        });
-        setQrCodeUrl(qrDataUrl);
+        // Use free QR code API instead of library
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(checkInUrl)}`;
+        setQrCodeUrl(qrApiUrl);
     };
 
     const subscribeToCheckIns = () => {
