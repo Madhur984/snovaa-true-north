@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -118,7 +118,7 @@ const SponsorDashboard = () => {
     return (
       <Layout>
         <div className="container max-w-6xl py-12">
-          <motion.div 
+          <motion.div
             variants={fadeOnly}
             initial="hidden"
             animate="visible"
@@ -135,7 +135,7 @@ const SponsorDashboard = () => {
   if (error) {
     return (
       <Layout>
-        <motion.div 
+        <motion.div
           className="container max-w-6xl py-12 text-center"
           variants={fadeUp}
           initial="hidden"
@@ -155,54 +155,80 @@ const SponsorDashboard = () => {
   return (
     <Layout>
       {/* Full-page background with vignette */}
-      <HeroBackground 
-        image={sponsorHero} 
-        speed={0.2} 
-        opacity={60} 
-        grayscale={20} 
-        overlay="heavy"
+      <HeroBackground
+        image={sponsorHero}
+        speed={0.2}
+        opacity={60}
+        grayscale={20}
         vignette
       />
 
       <div className="container max-w-6xl py-12">
         {/* Header */}
-        <div className="mb-8">
-          <Badge variant="secondary" className="mb-4">
-            Sponsor View
-          </Badge>
-          <h1 className="font-serif text-3xl font-medium text-display mb-2">
-            {access?.event.title}
-          </h1>
-          <p className="text-body">
-            Welcome, {access?.sponsor_name}. Here's the verified participation data for this event.
-          </p>
+        <div className="mb-8 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          <div>
+            <Badge variant="secondary" className="mb-4 print:hidden">
+              Sponsor View
+            </Badge>
+            <h1 className="font-serif text-3xl font-medium text-display mb-2 print:text-4xl">
+              {access?.event.title}
+            </h1>
+            <p className="text-body print:hidden">
+              Welcome, {access?.sponsor_name}. Here's the verified participation data for this event.
+            </p>
+            <p className="hidden print:block text-muted-foreground mt-2">
+              Official Participation Report prepared for {access?.sponsor_name}
+            </p>
+          </div>
+          <Button onClick={() => window.print()} variant="outline" className="print:hidden gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-4 h-4"
+            >
+              <path d="M6 9V2h12v7" />
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+              <path d="M6 14h12v8H6z" />
+            </svg>
+            Export / Print Report
+          </Button>
         </div>
 
         {/* Event Info */}
-        <Card className="mb-8">
-          <CardHeader>
+        <Card className="mb-8 print:shadow-none print:border-none">
+          <CardHeader className="print:hidden">
             <CardTitle className="font-serif">Event Details</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-6">
-              <div className="flex items-center gap-2 text-muted-foreground">
+          <CardContent className="print:p-0">
+            <div className="flex flex-wrap gap-6 print:grid print:grid-cols-2">
+              <div className="flex items-center gap-2 text-muted-foreground print:text-black">
                 <Calendar className="w-4 h-4" />
                 {access?.event.event_date &&
                   format(new Date(access.event.event_date), "MMMM d, yyyy")}
               </div>
               {access?.event.city && (
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="flex items-center gap-2 text-muted-foreground print:text-black">
                   <MapPin className="w-4 h-4" />
                   {access.event.city.name}, {access.event.city.country}
                 </div>
               )}
             </div>
+            <div className="hidden print:block mt-6 border-t pt-4">
+              <p className="text-sm text-muted-foreground">Generated on {format(new Date(), "PPpp")}</p>
+            </div>
           </CardContent>
         </Card>
 
         {/* Stats Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card>
+        <div className="grid md:grid-cols-3 gap-6 mb-8 print:grid-cols-3 print:gap-4">
+          <Card className="print:shadow-none print:border-black">
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
@@ -217,7 +243,7 @@ const SponsorDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="print:shadow-none print:border-black">
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
@@ -232,15 +258,15 @@ const SponsorDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-primary">
+          <Card className="border-primary print:border-black print:shadow-none">
             <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2 text-primary">
+              <CardDescription className="flex items-center gap-2 text-primary print:text-black">
                 <BarChart3 className="w-4 h-4" />
                 Attended
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-4xl font-serif font-medium text-primary">
+              <p className="text-4xl font-serif font-medium text-primary print:text-black">
                 {analytics?.attended_count || 0}
               </p>
               <p className="text-sm text-muted-foreground mt-1">Verified attendance</p>
@@ -249,7 +275,7 @@ const SponsorDashboard = () => {
         </div>
 
         {/* Conversion Rate */}
-        <Card className="mb-8">
+        <Card className="mb-8 print:shadow-none print:break-inside-avoid">
           <CardHeader>
             <CardTitle className="font-serif">Conversion Metrics</CardTitle>
             <CardDescription>
@@ -257,28 +283,27 @@ const SponsorDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6 print:gap-8">
               <div>
                 <p className="text-sm text-muted-foreground mb-2">Registration → Attendance Rate</p>
                 <div className="flex items-end gap-2">
                   <span className="text-3xl font-serif font-medium text-display">
                     {analytics?.registered_count
                       ? Math.round(
-                          ((analytics?.attended_count || 0) / analytics.registered_count) * 100
-                        )
+                        ((analytics?.attended_count || 0) / analytics.registered_count) * 100
+                      )
                       : 0}
                     %
                   </span>
                 </div>
-                <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
+                <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden print:border print:border-gray-300">
                   <div
-                    className="h-full bg-primary rounded-full transition-all"
+                    className="h-full bg-primary rounded-full transition-all print:bg-black"
                     style={{
-                      width: `${
-                        analytics?.registered_count
-                          ? ((analytics?.attended_count || 0) / analytics.registered_count) * 100
-                          : 0
-                      }%`,
+                      width: `${analytics?.registered_count
+                        ? ((analytics?.attended_count || 0) / analytics.registered_count) * 100
+                        : 0
+                        }%`,
                     }}
                   />
                 </div>
@@ -290,21 +315,20 @@ const SponsorDashboard = () => {
                   <span className="text-3xl font-serif font-medium text-display">
                     {analytics?.confirmed_count
                       ? Math.round(
-                          ((analytics?.attended_count || 0) / analytics.confirmed_count) * 100
-                        )
+                        ((analytics?.attended_count || 0) / analytics.confirmed_count) * 100
+                      )
                       : 0}
                     %
                   </span>
                 </div>
-                <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
+                <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden print:border print:border-gray-300">
                   <div
-                    className="h-full bg-primary rounded-full transition-all"
+                    className="h-full bg-primary rounded-full transition-all print:bg-black"
                     style={{
-                      width: `${
-                        analytics?.confirmed_count
-                          ? ((analytics?.attended_count || 0) / analytics.confirmed_count) * 100
-                          : 0
-                      }%`,
+                      width: `${analytics?.confirmed_count
+                        ? ((analytics?.attended_count || 0) / analytics.confirmed_count) * 100
+                        : 0
+                        }%`,
                     }}
                   />
                 </div>
@@ -314,25 +338,28 @@ const SponsorDashboard = () => {
         </Card>
 
         {/* Data Integrity Notice */}
-        <Card className="bg-accent/30 border-accent">
+        <Card className="bg-accent/30 border-accent print:border-2 print:border-black print:bg-transparent print:break-inside-avoid">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
-              <Shield className="w-8 h-8 text-primary flex-shrink-0" />
+              <Shield className="w-8 h-8 text-primary flex-shrink-0 print:text-black" />
               <div>
-                <h3 className="font-serif font-medium text-display mb-1">
+                <h3 className="font-serif font-medium text-display mb-1 print:uppercase print:tracking-widest">
                   Verified Participation Data
                 </h3>
-                <p className="text-sm text-body">
+                <p className="text-sm text-body print:text-justify">
                   All participation data is recorded in SNOVAA's immutable ledger. Records cannot be
                   edited or deleted, ensuring complete accuracy and accountability. This data
                   represents actual verified attendance, not self-reported metrics.
                 </p>
+                <div className="hidden print:block mt-8 border-t-2 border-black w-48 pt-2">
+                  <p className="text-xs font-medium uppercase">Authorized Signature</p>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    </Layout>
+    </Layout >
   );
 };
 

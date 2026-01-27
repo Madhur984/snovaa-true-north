@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, MapPin, Users, ArrowLeft, Plus, Settings } from "lucide-react";
 import { format } from "date-fns";
+import { ClubCredibility } from "@/components/clubs/ClubCredibility";
 
 interface Club {
   id: string;
@@ -214,150 +215,173 @@ const ClubDetail = () => {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Members</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-serif font-medium text-display">{memberCount}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Total Events</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-serif font-medium text-display">{events.length}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Organizers</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-serif font-medium text-display">{organizers.length}</p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Stats & Trust Grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="md:col-span-2 space-y-6">
+            {/* Main Stats */}
+            <div className="grid grid-cols-3 gap-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription>Members</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-serif font-medium text-display">{memberCount}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription>Total Events</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-serif font-medium text-display">{events.length}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription>Organizers</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-serif font-medium text-display">{organizers.length}</p>
+                </CardContent>
+              </Card>
+            </div>
 
-        {/* Content */}
-        <Tabs defaultValue="about" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="about">About</TabsTrigger>
-            <TabsTrigger value="events">Events</TabsTrigger>
-            <TabsTrigger value="organizers">Organizers</TabsTrigger>
-          </TabsList>
+            {/* Content Tabs */}
+            <Tabs defaultValue="about" className="space-y-6">
+              <TabsList className="w-full justify-start">
+                <TabsTrigger value="about">About</TabsTrigger>
+                <TabsTrigger value="events">Events</TabsTrigger>
+                <TabsTrigger value="organizers">Organizers</TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="about">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-serif">About this Club</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-body">{club.description || "No description provided."}</p>
-                <div className="mt-6 pt-6 border-t border-border">
-                  <p className="text-sm text-muted-foreground">
-                    Created on {format(new Date(club.created_at), "MMMM d, yyyy")}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              <TabsContent value="about">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="font-serif">About this Club</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-body">{club.description || "No description provided."}</p>
+                    <div className="mt-6 pt-6 border-t border-border">
+                      <p className="text-sm text-muted-foreground">
+                        Created on {format(new Date(club.created_at), "MMMM d, yyyy")}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-          <TabsContent value="events">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="font-serif">Club Events</CardTitle>
-                  <CardDescription>Events organized by this club</CardDescription>
-                </div>
-                {isOrganizer && (
-                  <Button asChild size="sm">
-                    <Link to={`/events/create?club=${id}`}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Event
-                    </Link>
-                  </Button>
-                )}
-              </CardHeader>
-              <CardContent>
-                {events.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-                    <p className="text-muted-foreground">No events yet</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {events.map((event) => (
-                      <Link
-                        key={event.id}
-                        to={`/events/${event.id}`}
-                        className="block p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h3 className="font-medium text-display">{event.title}</h3>
-                            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-3.5 h-3.5" />
-                                {format(new Date(event.event_date), "MMM d, yyyy")}
-                              </span>
-                              <span>{event.venue}</span>
-                            </div>
-                          </div>
-                          <Badge
-                            variant={
-                              event.status === "published"
-                                ? "default"
-                                : event.status === "live"
-                                  ? "destructive"
-                                  : "secondary"
-                            }
+              <TabsContent value="events">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle className="font-serif">Club Events</CardTitle>
+                      <CardDescription>Events organized by this club</CardDescription>
+                    </div>
+                    {isOrganizer && (
+                      <Button asChild size="sm">
+                        <Link to={`/events/create?club=${id}`}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Event
+                        </Link>
+                      </Button>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    {events.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                        <p className="text-muted-foreground">No events yet</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {events.map((event) => (
+                          <Link
+                            key={event.id}
+                            to={`/events/${event.id}`}
+                            className="block p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
                           >
-                            {event.status}
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="font-medium text-display">{event.title}</h3>
+                                <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    {format(new Date(event.event_date), "MMM d, yyyy")}
+                                  </span>
+                                  <span>{event.venue}</span>
+                                </div>
+                              </div>
+                              <Badge
+                                variant={
+                                  event.status === "published"
+                                    ? "default"
+                                    : event.status === "live"
+                                      ? "destructive"
+                                      : "secondary"
+                                }
+                              >
+                                {event.status}
+                              </Badge>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="organizers">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="font-serif">Club Organizers</CardTitle>
+                    <CardDescription>People who manage this club</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {organizers.map((org) => (
+                        <div
+                          key={org.id}
+                          className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <span className="text-primary font-medium">
+                                {org.profile.display_name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <span className="font-medium text-display">{org.profile.display_name}</span>
+                          </div>
+                          <Badge variant="outline" className="capitalize">
+                            {org.role}
                           </Badge>
                         </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="organizers">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-serif">Club Organizers</CardTitle>
-                <CardDescription>People who manage this club</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {organizers.map((org) => (
-                    <div
-                      key={org.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-primary font-medium">
-                            {org.profile.display_name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <span className="font-medium text-display">{org.profile.display_name}</span>
-                      </div>
-                      <Badge variant="outline" className="capitalize">
-                        {org.role}
-                      </Badge>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Sidebar: Credibility */}
+          <div className="space-y-6">
+            <ClubCredibility clubId={id!} />
+
+            {/* Sponsor Call to Action (Mock) */}
+            <Card className="bg-gradient-to-br from-indigo-50 to-white border-indigo-100">
+              <CardContent className="pt-6">
+                <h4 className="font-serif font-medium text-indigo-900 mb-2">Sponsor this Club</h4>
+                <p className="text-sm text-indigo-700/80 mb-4">
+                  Access a community with {memberCount} verified members and {events.length} successful events.
+                </p>
+                <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                  View Sponsorship Deck
+                </Button>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </div>
     </Layout>
   );

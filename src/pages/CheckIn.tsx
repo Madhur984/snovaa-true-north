@@ -8,15 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Search, Check, X, Users } from "lucide-react";
+import { ArrowLeft, Search, Check, X, Users, Wifi, WifiOff, RefreshCw } from "lucide-react";
 import { QRScanner } from "@/components/QRScanner";
+import { OfflineLedger, OfflineRecord } from "@/lib/offline-ledger";
 
 interface Participant {
-  id: string;
+  id: string; // Ledger record ID (server) or Offline ID (local)
   profile_id: string;
   display_name: string;
   latest_action: string;
   recorded_at: string;
+  is_pending?: boolean; // Offline flag
 }
 
 interface Event {
@@ -35,13 +37,37 @@ const CheckIn = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [ledgerStats, setLedgerStats] = useState(OfflineLedger.getStats());
 
   useEffect(() => {
+    // Network listeners
+    const handleOnline = () => {
+      setIsOnline(true);
+      OfflineLedger.syncPendingRecords().then(() => updateStats());
+    };
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Initial Sync
+    updateStats();
+
     if (id) {
       fetchEvent();
       fetchParticipants();
     }
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, [id]);
+
+  const updateStats = () => {
+    setLedgerStats(OfflineLedger.getStats());
+  };
 
   const fetchEvent = async () => {
     const { data } = await supabase
@@ -54,28 +80,32 @@ const CheckIn = () => {
   };
 
   const fetchParticipants = async () => {
-    // Get all participation records for this event
-    const { data } = await supabase
+    // 1. Get SERVER records
+    const { data: serverData } = await supabase
       .from("participation_ledger")
       .select("*, profile:profiles(id, display_name)")
       .eq("event_id", id)
       .order("recorded_at", { ascending: false });
 
-    if (data) {
-      // Group by participant and get latest status
-      const participantMap = new Map<string, Participant>();
+    // 2. Get LOCAL records (Unsynced)
+    const localQueue = OfflineLedger.getQueue().filter(r => r.event_id === id && !r.synced);
 
-      interface LedgerRecord {
-        id: string;
-        participant_id: string;
-        action: string;
-        recorded_at: string;
-        profile: {
-          display_name: string;
-        } | null;
-      }
+    // Group Map
+    const participantMap = new Map<string, Participant>();
 
-      (data as unknown as LedgerRecord[]).forEach((record) => {
+    interface ServerLedgerRecord {
+      id: string;
+      participant_id: string;
+      action: string;
+      recorded_at: string;
+      profile: {
+        display_name: string;
+      } | null;
+    }
+
+    // Process Server Data First
+    if (serverData) {
+      (serverData as unknown as ServerLedgerRecord[]).forEach((record) => {
         if (!participantMap.has(record.participant_id)) {
           participantMap.set(record.participant_id, {
             id: record.id,
@@ -83,17 +113,42 @@ const CheckIn = () => {
             display_name: record.profile?.display_name || "Unknown",
             latest_action: record.action,
             recorded_at: record.recorded_at,
+            is_pending: false
           });
         }
       });
-
-      setParticipants(Array.from(participantMap.values()));
     }
+
+    // Overlay Local Data (Takes Priority as "Latest")
+    localQueue.forEach((record) => {
+      // Since local is newer, we overwrite or add
+      const existing = participantMap.get(record.participant_id);
+      // Ideally we'd compare timestamps, but for check-in assume local is "now"
+      participantMap.set(record.participant_id, {
+        id: record.id,
+        profile_id: record.participant_id,
+        display_name: existing?.display_name || "Look up...", // We might lack name offline
+        latest_action: record.action,
+        recorded_at: record.recorded_at,
+        is_pending: true
+      });
+    });
+
+    setParticipants(Array.from(participantMap.values()));
     setLoading(false);
   };
 
+  const handleManualSync = async () => {
+    // Force sync and refresh
+    setProcessingId("syncing");
+    await OfflineLedger.syncPendingRecords();
+    updateStats();
+    await fetchParticipants();
+    setProcessingId(null);
+  };
+
   const handleCheckIn = useCallback(async (participantId: string) => {
-    if (!profile) return;
+    if (!profile || !id) return;
     setProcessingId(participantId);
 
     // Check if already checked in
@@ -107,32 +162,43 @@ const CheckIn = () => {
       return;
     }
 
-    const { error } = await supabase.from("participation_ledger").insert({
-      event_id: id,
-      participant_id: participantId,
-      action: "attended",
-      recorded_by: profile.id,
-    });
+    try {
+      // 1. Write to Offline Ledger (Always succeeds if storage available)
+      await OfflineLedger.addRecord(id, participantId, profile.id, "attended");
 
-    if (error) {
-      toast({
-        title: "Check-in failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
       const participantName = participants.find(p => p.profile_id === participantId)?.display_name || "Participant";
+
       toast({
         title: "Checked in!",
-        description: `${participantName}'s attendance recorded in the ledger.`,
+        description: "Attendance recorded securely.",
       });
-      // Update local state
-      setParticipants((prev) =>
-        prev.map((p) =>
-          p.profile_id === participantId ? { ...p, latest_action: "attended" } : p
-        )
-      );
+
+      // 2. Update Local State UI Immediately (Optimistic)
+      setParticipants((prev) => {
+        const existing = prev.find(p => p.profile_id === participantId);
+        const newRecord: Participant = {
+          id: "temp-id",
+          profile_id: participantId,
+          display_name: existing?.display_name || "Unknown",
+          latest_action: "attended",
+          recorded_at: new Date().toISOString(),
+          is_pending: true
+        };
+
+        if (existing) {
+          return prev.map(p => p.profile_id === participantId ? newRecord : p);
+        } else {
+          return [newRecord, ...prev];
+        }
+      });
+
+      updateStats();
+
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Error", description: "Failed to save record locally", variant: "destructive" });
     }
+
     setProcessingId(null);
   }, [id, profile, participants, toast]);
 
@@ -170,6 +236,21 @@ const CheckIn = () => {
           <ArrowLeft className="w-4 h-4" />
           Back to Event Management
         </Link>
+
+        {/* Network & Sync Status Bar */}
+        <div className={`mb-6 p-4 rounded-lg flex items-center justify-between transition-colors ${isOnline ? 'bg-secondary/50' : 'bg-amber-100 border border-amber-300'}`}>
+          <div className="flex items-center gap-3">
+            {isOnline ? <Wifi className="w-5 h-5 text-green-600" /> : <WifiOff className="w-5 h-5 text-amber-600" />}
+            <div>
+              <p className={`font-medium ${isOnline ? 'text-foreground' : 'text-amber-900'}`}>{isOnline ? 'System Online' : 'Offline Mode Active'}</p>
+              <p className="text-xs text-muted-foreground">{ledgerStats.pending} verification records pending upload</p>
+            </div>
+          </div>
+          <Button size="sm" variant="outline" onClick={handleManualSync} disabled={ledgerStats.pending === 0 || !isOnline}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${processingId === 'syncing' ? 'animate-spin' : ''}`} />
+            Sync Now
+          </Button>
+        </div>
 
         {/* Header */}
         <div className="mb-8">
@@ -219,7 +300,10 @@ const CheckIn = () => {
               <CardDescription>Attended</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-serif font-medium text-primary">{stats.attended}</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-2xl font-serif font-medium text-primary">{stats.attended}</p>
+                {ledgerStats.pending > 0 && <span className="text-xs text-amber-600 font-medium">({ledgerStats.pending} pending)</span>}
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -280,7 +364,10 @@ const CheckIn = () => {
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-display">{participant.display_name}</p>
+                        <p className="font-medium text-display flex items-center gap-2">
+                          {participant.display_name}
+                          {participant.is_pending && <Badge variant="outline" className="text-xs h-4 text-amber-600 border-amber-300">Pending</Badge>}
+                        </p>
                         <Badge
                           variant={
                             participant.latest_action === "attended"

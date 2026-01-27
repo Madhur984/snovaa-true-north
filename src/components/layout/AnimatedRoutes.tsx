@@ -57,6 +57,7 @@ export function AnimatedRoutes() {
         <Route path="/clubs/:id/broadcast" element={<PageTransition><ClubLayout><ClubBroadcast /></ClubLayout></PageTransition>} />
         <Route path="/clubs/:id/settings" element={<PageTransition><ClubLayout><ClubSettings /></ClubLayout></PageTransition>} />
         <Route path="/sponsor" element={<PageTransition><SponsorDashboard /></PageTransition>} />
+        <Route path="/sponsor/:token" element={<PageTransition><SponsorDashboard /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />
         <Route path="/map" element={<PageTransition><Map /></PageTransition>} />
         <Route path="/philosophy" element={<PageTransition><Philosophy /></PageTransition>} />

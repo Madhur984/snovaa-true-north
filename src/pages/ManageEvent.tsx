@@ -14,6 +14,13 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save, Users, Sparkles, Link as LinkIcon, QrCode } from "lucide-react";
 import { EventMediaUpload } from "@/components/EventMediaUpload";
 import { EventLifecycleControls } from "@/components/EventLifecycleControls";
+import { EventSignalControl } from "@/components/EventSignalControl";
+
+// ... (interfaces remain the same)
+
+// ... (inside component)
+
+{/* Lifecycle Controls */ }
 interface Event {
   id: string;
   title: string;
@@ -287,8 +294,8 @@ const ManageEvent = () => {
             currentStatus={event.status}
             onStatusChange={handleStatusChange}
           />
+          <EventSignalControl eventId={id!} currentStatus={event.status} />
         </div>
-
         <Tabs defaultValue="details">
           <TabsList className="mb-6">
             <TabsTrigger value="details">Details</TabsTrigger>

@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, MapPin, Clock, Plus, Users } from "lucide-react";
 import { format } from "date-fns";
 import { fadeUp, fadeOnly, feedContainer, feedItem, scrollViewport } from "@/lib/motion";
+import { UserIdentity } from "@/components/layout/UserIdentity";
 
 interface Event {
   id: string;
@@ -55,7 +56,7 @@ const MyEvents = () => {
 
     if (participation && participation.length > 0) {
       const eventIds = [...new Set(participation.map(p => p.event_id))];
-      
+
       const { data: events } = await supabase
         .from("events")
         .select("*, city:cities(name, country)")
@@ -103,7 +104,7 @@ const MyEvents = () => {
     return (
       <Layout>
         <div className="container max-w-4xl py-12">
-          <motion.div 
+          <motion.div
             variants={fadeOnly}
             initial="hidden"
             animate="visible"
@@ -119,13 +120,13 @@ const MyEvents = () => {
 
   return (
     <Layout>
-      <motion.div 
+      <motion.div
         className="container max-w-4xl py-12"
         variants={fadeOnly}
         initial="hidden"
         animate="visible"
       >
-        <motion.div 
+        <motion.div
           className="flex items-center justify-between mb-8"
           variants={fadeUp}
           initial="hidden"
@@ -152,11 +153,20 @@ const MyEvents = () => {
               <TabsTrigger value="organized">Organized</TabsTrigger>
             )}
             <TabsTrigger value="registered">Registered</TabsTrigger>
+            <TabsTrigger value="identity">My Identity</TabsTrigger>
           </TabsList>
+
+          {/* ... existing Organized Content ... */}
+          {/* ... existing Registered Content ... */}
+
+          <TabsContent value="identity">
+            {profile && <UserIdentity userId={profile.id} />}
+          </TabsContent>
 
           {profile?.role === "organizer" && (
             <TabsContent value="organized">
               {organizedEvents.length === 0 ? (
+                // ... content ...
                 <motion.div
                   variants={fadeUp}
                   initial="hidden"
@@ -185,7 +195,7 @@ const MyEvents = () => {
                       <CardDescription>{organizedEvents.length} total events</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <motion.div 
+                      <motion.div
                         className="space-y-3"
                         variants={feedContainer}
                         initial="hidden"
@@ -202,7 +212,9 @@ const MyEvents = () => {
             </TabsContent>
           )}
 
+          {/* Registered Tab Content (Re-asserting existing structure) */}
           <TabsContent value="registered">
+            {/* ... same logic as before ... */}
             {registeredEvents.length === 0 ? (
               <motion.div
                 variants={fadeUp}
@@ -232,7 +244,7 @@ const MyEvents = () => {
                     <CardDescription>{registeredEvents.length} events</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <motion.div 
+                    <motion.div
                       className="space-y-3"
                       variants={feedContainer}
                       initial="hidden"

@@ -211,7 +211,6 @@ export const QRScanner = ({ eventId, onScan, isProcessing }: QRScannerProps) => 
                     <div className="absolute inset-8 flex items-center justify-center">
                       <div className="w-4 h-4 border-t-2 border-l-2 border-primary absolute top-0 left-0" />
                       <div className="w-4 h-4 border-t-2 border-r-2 border-primary absolute top-0 right-0" />
-                      <div className="w-4 h-4 border-b-2 border-l-2 border-primary absolute bottom-0 left-0" />
                       <div className="w-4 h-4 border-b-2 border-r-2 border-primary absolute bottom-0 right-0" />
                     </div>
                   </div>
@@ -219,7 +218,8 @@ export const QRScanner = ({ eventId, onScan, isProcessing }: QRScannerProps) => 
                     <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                       <div className="text-center">
                         <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
-                        <p className="text-sm font-medium">Processing...</p>
+                        <p className="text-sm font-medium">Verifying...</p>
+                        {!navigator.onLine && <p className="text-xs text-amber-600 mt-1">Stored Locally</p>}
                       </div>
                     </div>
                   )}
