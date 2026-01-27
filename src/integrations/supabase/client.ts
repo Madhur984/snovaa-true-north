@@ -5,12 +5,6 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-console.log("Supabase Debug:", {
-  url: SUPABASE_URL,
-  keyLength: SUPABASE_PUBLISHABLE_KEY?.length,
-  keyStart: SUPABASE_PUBLISHABLE_KEY?.substring(0, 5)
-});
-
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
