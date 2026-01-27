@@ -1,13 +1,22 @@
 -- ============================================================================
--- COMPLETE DATABASE SETUP FOR SNOVAA
+-- COMPLETE DATABASE SETUP FOR SNOVAA (REVISED)
 -- Run this ENTIRE file in Supabase SQL Editor
 -- ============================================================================
 
--- This combines all migrations into one file for easy setup
--- After running this, your database will be fully configured
+-- RESET: Drop existing objects to prevent "already exists" errors
+-- WARNING: This deletes existing data in these tables. 
+-- Since this is a new project setup, this is the cleanest way to ensure structure.
+DROP TABLE IF EXISTS public.sponsor_access CASCADE;
+DROP TABLE IF EXISTS public.ai_suggestions CASCADE;
+DROP TABLE IF EXISTS public.event_modules CASCADE;
+DROP TABLE IF EXISTS public.event_media CASCADE;
+DROP TABLE IF EXISTS public.participation_ledger CASCADE;
+DROP TABLE IF EXISTS public.events CASCADE;
+DROP TABLE IF EXISTS public.cities CASCADE;
+DROP TABLE IF EXISTS public.profiles CASCADE;
+DROP TYPE IF EXISTS public.app_role CASCADE;
 
 -- PHASE 0: Foundation - Core domain models and invariants
--- PHASE 1: Immutable Core - User identity and append-only ledger
 
 -- User roles enum
 CREATE TYPE public.app_role AS ENUM ('participant', 'organizer', 'sponsor');
@@ -46,7 +55,8 @@ CREATE TABLE public.events (
   start_time TIME NOT NULL,
   end_time TIME,
   max_participants INTEGER,
-  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'completed', 'cancelled')),
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'live', 'completed', 'cancelled')),
+  live_started_at TIMESTAMPTZ,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   published_at TIMESTAMP WITH TIME ZONE
 );
@@ -192,6 +202,8 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Trigger for auto-creating profiles
+-- Drop first to avoid conflicts on re-run
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
@@ -232,32 +244,63 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
--- Insert some sample cities
+-- ============================================================================
+-- SEED DATA: MASSIVE INDIAN CITY LIST (Tier 1, 2 & Major Hubs)
+-- ============================================================================
+
 INSERT INTO public.cities (name, country, latitude, longitude) VALUES
-  ('San Francisco', 'USA', 37.7749, -122.4194),
-  ('New York', 'USA', 40.7128, -74.0060),
-  ('London', 'UK', 51.5074, -0.1278),
-  ('Berlin', 'Germany', 52.5200, 13.4050),
-  ('Tokyo', 'Japan', 35.6762, 139.6503),
-  ('Singapore', 'Singapore', 1.3521, 103.8198),
-  ('Sydney', 'Australia', -33.8688, 151.2093),
-  ('Toronto', 'Canada', 43.6532, -79.3832),
+  -- Tier 1
   ('Bengaluru', 'India', 12.9716, 77.5946),
   ('Mumbai', 'India', 19.0760, 72.8777),
   ('New Delhi', 'India', 28.6139, 77.2090),
-  ('Hyderabad', 'India', 17.3850, 78.4867),
   ('Chennai', 'India', 13.0827, 80.2707),
-  ('Pune', 'India', 18.5204, 73.8567),
+  ('Hyderabad', 'India', 17.3850, 78.4867),
   ('Kolkata', 'India', 22.5726, 88.3639),
+  ('Pune', 'India', 18.5204, 73.8567),
+  ('Ahmedabad', 'India', 23.0225, 72.5714),
+  
+  -- NCR & North
   ('Gurugram', 'India', 28.4595, 77.0266),
   ('Noida', 'India', 28.5355, 77.3910),
-  ('Goa', 'India', 15.2993, 74.1240);
-
-
--- ============================================================================
--- FIX: Add 'live' status to events table
--- ============================================================================
-
-ALTER TABLE public.events DROP CONSTRAINT IF EXISTS events_status_check;
-ALTER TABLE public.events ADD CONSTRAINT events_status_check CHECK (status IN ('draft', 'published', 'live', 'completed', 'cancelled'));
-ALTER TABLE public.events ADD COLUMN IF NOT EXISTS live_started_at TIMESTAMPTZ;
+  ('Ghaziabad', 'India', 28.6692, 77.4538),
+  ('Chandigarh', 'India', 30.7333, 76.7794),
+  ('Jaipur', 'India', 26.9124, 75.7873),
+  ('Lucknow', 'India', 26.8467, 80.9462),
+  ('Kanpur', 'India', 26.4499, 80.3319),
+  ('Dehradun', 'India', 30.3165, 78.0322),
+  ('Shimla', 'India', 31.1048, 77.1734),
+  ('Varanasi', 'India', 25.3176, 82.9739),
+  ('Agra', 'India', 27.1767, 78.0081),
+  
+  -- West
+  ('Surat', 'India', 21.1702, 72.8311),
+  ('Vadodara', 'India', 22.3072, 73.1812),
+  ('Nagpur', 'India', 21.1458, 79.0882),
+  ('Indore', 'India', 22.7196, 75.8577),
+  ('Bhopal', 'India', 23.2599, 77.4126),
+  ('Nashik', 'India', 19.9975, 73.7898),
+  ('Goa (Panaji)', 'India', 15.4909, 73.8278),
+  
+  -- South
+  ('Kochi', 'India', 9.9312, 76.2673),
+  ('Thiruvananthapuram', 'India', 8.5241, 76.9366),
+  ('Coimbatore', 'India', 11.0168, 76.9558),
+  ('Visakhapatnam', 'India', 17.6868, 83.2185),
+  ('Mysuru', 'India', 12.2958, 76.6394),
+  ('Madurai', 'India', 9.9252, 78.1198),
+  ('Vijayawada', 'India', 16.5062, 80.6480),
+  
+  -- East & North East
+  ('Guwahati', 'India', 26.1445, 91.7362),
+  ('Bhubaneswar', 'India', 20.2961, 85.8245),
+  ('Patna', 'India', 25.5941, 85.1376),
+  ('Ranchi', 'India', 23.3441, 85.3096),
+  
+  -- Global Major
+  ('New York', 'USA', 40.7128, -74.0060),
+  ('London', 'UK', 51.5074, -0.1278),
+  ('Singapore', 'Singapore', 1.3521, 103.8198),
+  ('Tokyo', 'Japan', 35.6762, 139.6503)
+ON CONFLICT (name, country) DO UPDATE SET 
+  latitude = EXCLUDED.latitude, 
+  longitude = EXCLUDED.longitude;
