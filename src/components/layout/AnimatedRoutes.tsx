@@ -1,8 +1,9 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { PageTransition } from "./PageTransition";
+import { Layout } from "@/components/layout/Layout";
 
-import Index from "@/pages/Index";
+import { IndexPage } from "@/pages/IndexPage";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import Dashboard from "@/pages/Dashboard";
@@ -36,7 +37,7 @@ export function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+        <Route path="/" element={<PageTransition><Layout><IndexPage /></Layout></PageTransition>} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
         <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
@@ -46,7 +47,7 @@ export function AnimatedRoutes() {
         <Route path="/events/:id/manage" element={<PageTransition><ManageEvent /></PageTransition>} />
         <Route path="/events/:id/live" element={<PageTransition><LiveEvent /></PageTransition>} />
         <Route path="/events/:id/checkin" element={<PageTransition><CheckIn /></PageTransition>} />
-        <Route path="/my-events" element={<PageTransition><MyEvents /></PageTransition>} />
+        <Route path="/my-events" element={<PageTransition><Layout><MyEvents /></Layout></PageTransition>} />
         <Route path="/clubs" element={<PageTransition><Clubs /></PageTransition>} />
         <Route path="/clubs/create" element={<PageTransition><CreateClub /></PageTransition>} />
         <Route path="/clubs/:id" element={<PageTransition><ClubDetail /></PageTransition>} />
