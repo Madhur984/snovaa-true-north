@@ -241,7 +241,17 @@ INSERT INTO public.cities (name, country, latitude, longitude) VALUES
   ('Tokyo', 'Japan', 35.6762, 139.6503),
   ('Singapore', 'Singapore', 1.3521, 103.8198),
   ('Sydney', 'Australia', -33.8688, 151.2093),
-  ('Toronto', 'Canada', 43.6532, -79.3832);
+  ('Toronto', 'Canada', 43.6532, -79.3832),
+  ('Bengaluru', 'India', 12.9716, 77.5946),
+  ('Mumbai', 'India', 19.0760, 72.8777),
+  ('New Delhi', 'India', 28.6139, 77.2090),
+  ('Hyderabad', 'India', 17.3850, 78.4867),
+  ('Chennai', 'India', 13.0827, 80.2707),
+  ('Pune', 'India', 18.5204, 73.8567),
+  ('Kolkata', 'India', 22.5726, 88.3639),
+  ('Gurugram', 'India', 28.4595, 77.0266),
+  ('Noida', 'India', 28.5355, 77.3910),
+  ('Goa', 'India', 15.2993, 74.1240);
 
 
 -- ============================================================================
