@@ -7,10 +7,10 @@ import { MapPin, Users, Activity } from "lucide-react";
 
 export const HeroScene = () => {
     return (
-        <div className="relative h-[85vh] w-full flex items-center justify-center overflow-hidden bg-[#FDFDFD]">
+        <div className="relative h-[85vh] w-full flex items-center justify-center overflow-hidden bg-transparent">
 
             {/* Background Gradient Mesh */}
-            <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 z-0 opacity-40">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-50/50 rounded-full blur-[120px]" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-50/50 rounded-full blur-[120px]" />
             </div>

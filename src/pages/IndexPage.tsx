@@ -6,7 +6,7 @@ import { Check, ShieldCheck, Users } from "lucide-react";
 
 export const IndexPage = () => {
     return (
-        <div className="min-h-screen bg-[#FDFDFD]">
+        <div className="min-h-screen bg-transparent">
             {/* Global Nav is handled by Layout wrapper in AnimatedRoutes if needed, 
                 BUT since we want the Hero to be full-screen-ish, check if Layout adds padding. 
                 Yes, Layout adds pt-20. This is good for nav.
