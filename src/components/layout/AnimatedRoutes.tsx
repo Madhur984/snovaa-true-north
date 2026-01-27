@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { PageTransition } from "./PageTransition";
 import { Layout } from "@/components/layout/Layout";
@@ -39,6 +39,7 @@ export function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Layout><IndexPage /></Layout></PageTransition>} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+        <Route path="/signin" element={<Navigate to="/login" replace />} />
         <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
         <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
         <Route path="/events" element={<PageTransition><Events /></PageTransition>} />

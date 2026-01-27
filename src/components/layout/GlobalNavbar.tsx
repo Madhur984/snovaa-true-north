@@ -101,7 +101,7 @@ export const GlobalNavbar = () => {
                         </>
                     ) : (
                         <Button asChild size="sm" variant="default" className="rounded-full px-5">
-                            <Link to="/signin">Sign In</Link>
+                            <Link to="/login">Sign In</Link>
                         </Button>
                     )}
                 </div>
