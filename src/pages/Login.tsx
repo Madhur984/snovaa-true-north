@@ -94,10 +94,8 @@ const Login = () => {
             variant="outline"
             className="w-full"
             onClick={async () => {
-              console.log("Initiating Google Sign-In...");
               const { error } = await useAuth().signInWithGoogle();
               if (error) {
-                console.error("Google Sign-In Error:", error);
                 toast({
                   title: "Error signing in with Google",
                   description: error.message,
