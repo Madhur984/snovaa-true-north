@@ -30,6 +30,7 @@ import ClubChat from "@/components/clubs/ClubChat";
 import ClubBroadcast from "@/components/clubs/ClubBroadcast";
 import ClubSettings from "@/components/clubs/ClubSettings";
 import LiveEvent from "@/pages/LiveEvent";
+import AuthCallback from "@/pages/AuthCallback";
 
 export function AnimatedRoutes() {
   const location = useLocation();
@@ -38,6 +39,7 @@ export function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Layout><IndexPage /></Layout></PageTransition>} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/signin" element={<Navigate to="/login" replace />} />
         <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
