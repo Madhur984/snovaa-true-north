@@ -95,7 +95,7 @@ const Login = () => {
             variant="outline"
             className="w-full"
             onClick={async () => {
-              // alert("Google Sign-In Clicked! Starting..."); // Commented out for now
+              alert("1. Google Clicked");
               const { error } = await useAuth().signInWithGoogle();
               if (error) {
                 alert(`Google Login Failed: ${error.message}`); // Hardware alert
