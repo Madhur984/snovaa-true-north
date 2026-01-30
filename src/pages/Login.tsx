@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -118,6 +119,13 @@ const Login = () => {
             Create one
           </Link>
         </p>
+      </div>
+
+      {/* DIAGNOSTIC OVERLAY */}
+      <div className="fixed bottom-0 left-0 right-0 bg-yellow-100 p-2 text-xs font-mono border-t border-yellow-400 opacity-90">
+        <p><strong>Status:</strong> {import.meta.env.VITE_SUPABASE_URL ? "Supabase Configured" : "MISSING CONFIG"}</p>
+        <p><strong>Click Test:</strong> <button className="bg-blue-500 text-white px-2 rounded" onClick={() => alert("JS IS WORKING")}>Test Alert</button></p>
+        <p><strong>Project:</strong> {import.meta.env.VITE_SUPABASE_URL?.slice(0, 20)}...</p>
       </div>
     </div>
   );
