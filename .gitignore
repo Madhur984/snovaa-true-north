@@ -25,3 +25,6 @@ dist-ssr
 *.sw?
 .vercel
 .env*.local
+claude_desktop_config.json
+playwright-report/
+test-results/

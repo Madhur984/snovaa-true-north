@@ -3,6 +3,7 @@ import { Send, Lock, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 
 // Mock data for development
 const mockMessages = [
@@ -38,16 +39,39 @@ const ClubChat = () => {
         setNewMessage("");
     };
 
-    // Demo toggle for locked state
-    const toggleLock = () => {
-        if (isLocked) {
-            setAttendanceCount(3);
-            setIsLocked(false);
-        } else {
-            setAttendanceCount(1);
-            setIsLocked(true);
-        }
-    };
+    // Check for valid attendance on mount
+    useEffect(() => {
+        const checkAccess = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            // Get user's profile id first since participations links to profiles
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('user_id', user.id)
+                .single();
+
+            if (profile) {
+                // Count verified attendances
+                // Note: We need to filter by status='attended' but for now we count all participations
+                // until the status column is fully standardized. 
+                // Using head: true, count: 'exact' to get just the count.
+                const { count } = await supabase
+                    .from('participation_ledger')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('participant_id', profile.id)
+                // .eq('status', 'attended') // TODO: Uncomment when ready
+
+                if (count !== null) {
+                    setAttendanceCount(count);
+                    setIsLocked(count < 3);
+                }
+            }
+        };
+
+        checkAccess();
+    }, []);
 
     return (
         <div className="h-[calc(100vh-2rem)] flex flex-col relative overflow-hidden bg-black/50 rounded-2xl border border-white/10 m-4">
@@ -57,9 +81,7 @@ const ClubChat = () => {
                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                     <h2 className="font-display tracking-wide text-lg">SECURE CHANNEL</h2>
                 </div>
-                <Button variant="ghost" size="sm" onClick={toggleLock} className="text-xs font-mono text-white/30 hover:text-white">
-                    [DEBUG: TOGGLE LOCK]
-                </Button>
+
             </div>
 
             {/* Locked Overlay */}
@@ -103,8 +125,8 @@ const ClubChat = () => {
                 {messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.isMe ? "justify-end" : "justify-start"}`}>
                         <div className={`max-w-[80%] rounded-2xl p-4 ${msg.isMe
-                                ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-50 rounded-br-none"
-                                : "bg-white/5 border border-white/10 text-white/80 rounded-bl-none"
+                            ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-50 rounded-br-none"
+                            : "bg-white/5 border border-white/10 text-white/80 rounded-bl-none"
                             }`}>
                             {!msg.isMe && <p className="text-xs text-white/40 mb-1 font-mono">{msg.user}</p>}
                             <p className="leading-relaxed">{msg.content}</p>
