@@ -129,6 +129,7 @@ export type Database = {
           joined_at: string
           profile_id: string
           status: string
+          verified_event_count: number | null
         }
         Insert: {
           club_id: string
@@ -136,6 +137,7 @@ export type Database = {
           joined_at?: string
           profile_id: string
           status?: string
+          verified_event_count?: number | null
         }
         Update: {
           club_id?: string
@@ -143,6 +145,7 @@ export type Database = {
           joined_at?: string
           profile_id?: string
           status?: string
+          verified_event_count?: number | null
         }
         Relationships: [
           {
@@ -584,6 +587,7 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
           verified_at: string | null
+          avatar_url: string | null
         }
         Insert: {
           created_at?: string
@@ -602,6 +606,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
           verified_at?: string | null
+          avatar_url?: string | null
         }
         Relationships: []
       }
