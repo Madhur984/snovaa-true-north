@@ -6,61 +6,73 @@ import { SnovaaLoader } from "@/components/ui/SnovaaLoader";
 
 const AuthCallback = () => {
     const navigate = useNavigate();
-    const { user, loading } = useAuth();
-    const [status, setStatus] = useState("Authenticating...");
-    const [isStuck, setIsStuck] = useState(false);
+    const { user } = useAuth();
+    const [status, setStatus] = useState("Verifying login...");
+    const [debug, setDebug] = useState("");
+    const exchangeAttempted = useState(false); // Ref to track if we tried
 
     useEffect(() => {
-        // 1. If user appears, we are good.
+        // 1. Success case
         if (user) {
             setStatus("Success! Redirecting...");
             setTimeout(() => navigate("/dashboard"), 500);
             return;
         }
 
-        // 2. If loading finishes and no user, we might be stuck or failed.
-        if (!loading && !user) {
+        // 2. Handle Code Exchange
+        const handleExchange = async () => {
             const params = new URLSearchParams(window.location.search);
             const code = params.get("code");
             const error = params.get("error");
+            const errorDesc = params.get("error_description");
 
             if (error) {
-                setStatus(`Error: ${params.get("error_description") || error}`);
+                setStatus(`Login Error: ${errorDesc || error}`);
                 return;
             }
 
-            if (code) {
-                // SDK missed it? Let's try manual exchange one last time.
-                setStatus("Finalizing exchange...");
-                supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
-                    if (error) {
-                        console.error("Manual Exchange Error:", error);
-                        setStatus("Login failed. Please try again.");
-                        setIsStuck(true);
-                    } else if (data.session) {
-                        setStatus("Session established!");
-                        // The AuthProvider should pick this up automatically via onAuthStateChange
-                        // But we can force navigate
-                        navigate("/dashboard");
-                    }
-                });
-            } else {
-                setStatus("No session found. Redirecting to login...");
-                setTimeout(() => navigate("/login"), 2000);
+            if (!code) {
+                // No code, maybe just visiting the page?
+                if (!user) {
+                    setStatus("No login code found. Redirecting...");
+                    setTimeout(() => navigate("/login"), 2000);
+                }
+                return;
             }
-        }
-    }, [user, loading, navigate]);
 
-    // Safety timeout
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (!user) {
-                setIsStuck(true);
-                setStatus("Request timed out. Please try again.");
+            setDebug("Code found. Waiting for Supabase SDK...");
+
+            // WAIT 1.5s - Give the SDK's auto-detection a chance to work
+            // This prevents the "Unable to exchange external code" (conflict) error
+            await new Promise(r => setTimeout(r, 1500));
+
+            // Re-check user after wait
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                setStatus("Session detected via SDK. Redirecting...");
+                navigate("/dashboard");
+                return;
             }
-        }, 8000); // 8 seconds
-        return () => clearTimeout(timer);
-    }, [user]);
+
+            // If still no session, force manual exchange
+            setDebug("SDK silent. Attempting manual exchange...");
+            try {
+                const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+                if (error) {
+                    // Ignore "both code and code verifier should be non-empty" if it occurs (race condition)
+                    setDebug(`Manual exchange error: ${error.message}`);
+                    setStatus("Login could not be completed. Please try again.");
+                } else if (data.session) {
+                    setStatus("Manual success! Redirecting...");
+                    navigate("/dashboard");
+                }
+            } catch (err: any) {
+                setDebug(`Exception: ${err.message}`);
+            }
+        };
+
+        handleExchange();
+    }, [user, navigate]);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground animate-in fade-in zoom-in duration-500">
@@ -73,16 +85,19 @@ const AuthCallback = () => {
                     <h2 className="text-xl font-bold tracking-tight">One moment</h2>
                     <p className="text-muted-foreground text-sm font-medium">{status}</p>
 
-                    {isStuck && (
-                        <div className="pt-4">
-                            <button
-                                onClick={() => navigate("/login")}
-                                className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
-                            >
-                                Return to Login
-                            </button>
-                        </div>
-                    )}
+                    {/* Debug Info for User Feedback */}
+                    <div className="mt-4 p-2 bg-muted/50 rounded text-[10px] font-mono text-left w-full h-24 overflow-auto border">
+                        <p className="font-bold underline">Debug Log:</p>
+                        <p>{debug || "Initializing..."}</p>
+                        <p>User: {user ? "Yes" : "No"}</p>
+                    </div>
+
+                    <button
+                        onClick={() => navigate("/login")}
+                        className="mt-4 text-xs text-primary hover:underline"
+                    >
+                        Back to Login
+                    </button>
                 </div>
             </div>
         </div>
