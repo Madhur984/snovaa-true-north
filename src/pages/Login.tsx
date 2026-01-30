@@ -11,7 +11,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -96,7 +96,7 @@ const Login = () => {
             className="w-full"
             onClick={async () => {
               alert("1. Google Clicked");
-              const { error } = await useAuth().signInWithGoogle();
+              const { error } = await signInWithGoogle();
               if (error) {
                 alert(`Google Login Failed: ${error.message}`); // Hardware alert
                 toast({
