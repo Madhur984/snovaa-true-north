@@ -89,13 +89,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+    try {
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      // console.log("Generating OAuth URL...", redirectUrl);
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: true, // We will handle redirect manually
+        }
+      });
+
+      if (error) {
+        console.error("OAuth Generation Error:", error);
+        return { error };
       }
-    });
-    return { error };
+
+      if (data?.url) {
+        // console.log("OAuth URL generated:", data.url);
+        window.location.href = data.url; // Manual Redirect
+        return { error: null };
+      }
+
+      return { error: new Error("No OAuth URL returned") };
+    } catch (err: any) {
+      console.error("Unexpected OAuth Error:", err);
+      return { error: err };
+    }
   };
 
   const signOut = async () => {

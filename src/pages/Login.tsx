@@ -95,9 +95,10 @@ const Login = () => {
             variant="outline"
             className="w-full"
             onClick={async () => {
-              alert("Google Sign-In Clicked! Starting..."); // FORCE DEBUG
+              // alert("Google Sign-In Clicked! Starting..."); // Commented out for now
               const { error } = await useAuth().signInWithGoogle();
               if (error) {
+                alert(`Google Login Failed: ${error.message}`); // Hardware alert
                 toast({
                   title: "Error signing in with Google",
                   description: error.message,
@@ -127,7 +128,7 @@ const Login = () => {
         <p><strong>Click Test:</strong> <button className="bg-blue-500 text-white px-2 rounded" onClick={() => alert("JS IS WORKING")}>Test Alert</button></p>
         <p><strong>Project:</strong> {import.meta.env.VITE_SUPABASE_URL?.slice(0, 20)}...</p>
       </div>
-    </div>
+    </div >
   );
 };
 
