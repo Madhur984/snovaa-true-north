@@ -28,3 +28,4 @@ dist-ssr
 claude_desktop_config.json
 playwright-report/
 test-results/
+mcp-servers-source/
