@@ -94,6 +94,7 @@ const Login = () => {
             variant="outline"
             className="w-full"
             onClick={async () => {
+              alert("Google Sign-In Clicked! Starting..."); // FORCE DEBUG
               const { error } = await useAuth().signInWithGoogle();
               if (error) {
                 toast({
