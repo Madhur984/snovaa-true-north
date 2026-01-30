@@ -19,6 +19,7 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, displayName: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signInWithGoogle: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateRole: (role: "participant" | "organizer") => Promise<{ error: Error | null }>;
 }
@@ -48,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
           setTimeout(() => fetchProfile(session.user.id), 100);
         } else {
@@ -87,6 +88,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      }
+    });
+    return { error };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
@@ -94,7 +105,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updateRole = async (role: "participant" | "organizer") => {
     if (!profile) return { error: new Error("No profile found") };
-    
+
     const { error } = await supabase
       .from("profiles")
       .update({ role })
@@ -107,7 +118,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const value = React.useMemo(
-    () => ({ user, session, profile, loading, signUp, signIn, signOut, updateRole }),
+    () => ({ user, session, profile, loading, signUp, signIn, signInWithGoogle, signOut, updateRole }),
     [user, session, profile, loading]
   );
 
