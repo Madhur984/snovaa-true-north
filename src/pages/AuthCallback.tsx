@@ -17,7 +17,6 @@ const AuthCallback = () => {
 
         const params = new URLSearchParams(window.location.search);
         const error = params.get("error");
-        const code = params.get("code");
         const errorDesc = params.get("error_description");
 
         if (error) {
@@ -25,20 +24,9 @@ const AuthCallback = () => {
             return;
         }
 
-        if (code) {
-            // Attempt manual exchange if not already handled
-            supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
-                if (error) {
-                    setStatus(`Error exchanging code: ${error.message}`);
-                } else if (data.session) {
-                    navigate("/dashboard");
-                } else {
-                    // If data.session is null but no error, wait for onAuthStateChange
-                    setTimeout(() => {
-                        if (!user) setStatus("Stuck? Click retry below.");
-                    }, 3000);
-                }
-            });
+        // Standard flow: SDK automatically handles 'code' and updates 'user'
+        if (user) {
+            navigate("/dashboard");
         }
     }, [user, navigate]);
 

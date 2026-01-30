@@ -94,13 +94,6 @@ const Login = () => {
             variant="outline"
             className="w-full"
             onClick={async () => {
-              // 1. Force clear any stale auth tokens/verifiers
-              Object.keys(localStorage).forEach((key) => {
-                if (key.startsWith("sb-") && key.endsWith("-auth-token-code-verifier")) {
-                  localStorage.removeItem(key);
-                }
-              });
-
               const { error } = await signInWithGoogle();
               if (error) {
                 toast({
