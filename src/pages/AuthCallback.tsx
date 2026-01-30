@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,9 +8,14 @@ const AuthCallback = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [status, setStatus] = useState<string>("Authenticating...");
+    const called = useRef(false);
 
     useEffect(() => {
         const handleAuthCallback = async () => {
+            // 0. Prevent double invocation in React Strict Mode
+            if (called.current) return;
+            called.current = true;
+
             // 1. Check if user is already loaded (from persisted session)
             if (user) {
                 navigate("/dashboard");
@@ -25,8 +30,8 @@ const AuthCallback = () => {
 
             if (error) {
                 console.error("Auth error:", error, errorDescription);
-                setStatus(`Error: ${errorDescription || error}`);
-                setTimeout(() => navigate("/login"), 3000);
+                setStatus(`Error from Google: ${errorDescription || error} (Please try again)`);
+                // Do NOT redirect automatically on error, let user see it!
                 return;
             }
 
@@ -43,29 +48,29 @@ const AuthCallback = () => {
                             navigate("/dashboard");
                         } else {
                             setStatus(`Login failed: ${error.message}`);
-                            setTimeout(() => navigate("/login"), 3000);
+                            // Do NOT redirect automatically on error
                         }
                     } else {
                         // Success!
-                        navigate("/dashboard");
+                        setStatus("Success! Redirecting...");
+                        setTimeout(() => navigate("/dashboard"), 500);
                     }
                 } catch (err) {
                     console.error("Unexpected error:", err);
-                    setStatus("An unexpected error occurred.");
+                    setStatus("An unexpected error occurred. Please check console.");
                 }
             } else {
                 // No code, no user. Maybe 'access_token' hash (Implicit flow)?
-                // Supabase v2 prefers PKCE, but let's check hash just in case.
                 const hash = window.location.hash;
                 if (hash && hash.includes("access_token")) {
-                    // The AuthProvider/Supabase client should handle this automatically.
-                    // We just wait a bit.
                     setStatus("Finalizing login...");
                     setTimeout(() => {
-                        // Check user again after delay
                         supabase.auth.getSession().then(({ data }) => {
                             if (data.session) navigate("/dashboard");
-                            else navigate("/login");
+                            else {
+                                setStatus("Session not found. Please try logging in again.");
+                                setTimeout(() => navigate("/login"), 3000);
+                            }
                         });
                     }, 2000);
                 } else {
