@@ -3,12 +3,13 @@ import { GlobalNavbar } from "@/components/layout/GlobalNavbar";
 
 interface LayoutProps {
   children: ReactNode;
+  showHeader?: boolean;
 }
 
-export const Layout = ({ children }: LayoutProps) => {
+export const Layout = ({ children, showHeader = true }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-transparent flex flex-col font-sans text-gray-900 selection:bg-gray-900 selection:text-white">
-      <GlobalNavbar />
+      {showHeader && <GlobalNavbar />}
 
       {/* Main Content Area: Padding for fixed navbar (h-16 = 64px) + extra spacing */}
       <main className="pt-16 flex-1 flex flex-col">
